@@ -70,48 +70,48 @@ export function ProspectRow({
           : "hover:bg-surface-2/70 transition-colors duration-150",
       ].join(" ")}
     >
-      <div className="flex items-center gap-2 px-2 py-2">
+      <div className="flex items-center gap-2 px-2 py-1.5">
         <button
           ref={setActivatorNodeRef}
           {...attributes}
           {...listeners}
           aria-label={`Drag ${prospect.name}`}
           disabled={!draggable}
-          className="text-ink-faint hover:text-ink cursor-grab touch-none rounded p-1.5 transition-colors active:cursor-grabbing disabled:cursor-default disabled:opacity-20"
+          className="text-ink-faint hover:text-ink cursor-grab touch-none rounded p-1 transition-colors active:cursor-grabbing disabled:cursor-default disabled:opacity-20"
         >
-          <GripVertical className="h-5 w-5" />
+          <GripVertical className="h-4 w-4" />
         </button>
 
         <span
           className={[
-            "display w-10 shrink-0 text-right text-2xl font-bold leading-none",
+            "display w-9 shrink-0 text-right text-xl font-bold leading-none",
             rank <= 14 ? "text-accent" : "text-ink-muted",
           ].join(" ")}
         >
           {rank}
         </span>
 
-        <div className="pl-2">
+        <div className="pl-1.5">
           <Headshot
             src={prospect.headshotUrl}
             alt={prospect.name}
-            size={56}
+            size={44}
             accent={accent}
           />
         </div>
 
-        <div className="min-w-[200px] flex-1 pl-1.5">
-          <div className="flex items-center gap-2.5">
-            <span className="display text-ink truncate text-xl font-bold leading-tight">
+        <div className="min-w-[200px] flex-1 pl-1">
+          <div className="flex items-center gap-2">
+            <span className="display text-ink truncate text-lg font-bold leading-tight">
               {prospect.name}
             </span>
             {prospect.projectedRange && (
-              <span className="border-border text-ink-faint tnum shrink-0 rounded-md border px-1.5 py-0.5 text-[11px]">
+              <span className="border-border text-ink-faint tnum shrink-0 rounded border px-1 py-px text-[10px]">
                 {prospect.projectedRange}
               </span>
             )}
           </div>
-          <div className="text-ink-faint mt-1 flex items-center gap-2 text-xs">
+          <div className="text-ink-faint mt-0.5 flex items-center gap-1.5 text-[11px] leading-tight">
             {prospect.position && (
               <span
                 className="shrink-0 font-mono font-semibold"
@@ -137,7 +137,7 @@ export function ProspectRow({
               <span
                 key={col.key}
                 className={[
-                  "tnum w-16 justify-end text-right text-[15px]",
+                  "tnum w-16 justify-end text-right text-sm",
                   col.cellClass ?? "inline-flex",
                   v == null
                     ? "text-ink-faint/60"

@@ -34,6 +34,39 @@ const NICKNAME_COLORS: Record<string, string> = {
   Wizards: "#E31837",
 };
 
+const NICKNAME_ABBR: Record<string, string> = {
+  Hawks: "ATL",
+  Celtics: "BOS",
+  Nets: "BKN",
+  Hornets: "CHA",
+  Bulls: "CHI",
+  Cavaliers: "CLE",
+  Mavericks: "DAL",
+  Nuggets: "DEN",
+  Pistons: "DET",
+  Warriors: "GSW",
+  Rockets: "HOU",
+  Pacers: "IND",
+  Clippers: "LAC",
+  Lakers: "LAL",
+  Grizzlies: "MEM",
+  Heat: "MIA",
+  Bucks: "MIL",
+  Timberwolves: "MIN",
+  Pelicans: "NOP",
+  Knicks: "NYK",
+  Thunder: "OKC",
+  Magic: "ORL",
+  "76ers": "PHI",
+  Suns: "PHX",
+  "Trail Blazers": "POR",
+  Kings: "SAC",
+  Spurs: "SAS",
+  Raptors: "TOR",
+  Jazz: "UTA",
+  Wizards: "WAS",
+};
+
 /** Accent color for a drafted-by team name like "Dallas Mavericks". */
 export function teamColor(team: string | null | undefined): string {
   if (!team) return "#5d6675";
@@ -41,6 +74,15 @@ export function teamColor(team: string | null | undefined): string {
     if (team.endsWith(nickname)) return color;
   }
   return "#5d6675";
+}
+
+/** Three-letter abbreviation for a team name like "Dallas Mavericks". */
+export function teamAbbr(team: string | null | undefined): string | null {
+  if (!team) return null;
+  for (const [nickname, abbr] of Object.entries(NICKNAME_ABBR)) {
+    if (team.endsWith(nickname)) return abbr;
+  }
+  return null;
 }
 
 /** Accent color per prospect position group. */

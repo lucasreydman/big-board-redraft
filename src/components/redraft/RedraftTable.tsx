@@ -38,7 +38,7 @@ import { createClient } from "@/lib/supabase/client";
 import { sortPlayerIds, type SortDir } from "@/lib/sort";
 import { buildHeat } from "@/lib/heat";
 import { teamColor } from "@/lib/teamColors";
-import { REDRAFT_STAT_COLUMNS, type StatKey } from "@/lib/constants";
+import { REDRAFT_STAT_COLUMNS, UDFA_PICK, type StatKey } from "@/lib/constants";
 import { pickDelta } from "@/lib/format";
 import { exportCsv, exportPng } from "@/lib/export";
 import type { Player } from "@/lib/types";
@@ -72,7 +72,25 @@ export function RedraftTable({
     [players],
   );
 
-  const [order, setOrder] = useState<string[]>(initialOrder);
+  // Reconcile the saved order with the current player pool: drop ids that no
+  // longer exist (purged players) and append newly ingested ones (UDFAs) at
+  // the bottom in actual-pick order.
+  const [order, setOrder] = useState<string[]>(() => {
+    const kept = initialOrder.filter((id) => byId.has(id));
+    const seen = new Set(kept);
+    const added = actualOrder.filter((id) => !seen.has(id));
+    return [...kept, ...added];
+  });
+
+  // Which franchise owned each pick slot on draft night — anchored to the
+  // slot so reordering shows who would end up with whom.
+  const slotTeams = useMemo(() => {
+    const m = new Map<number, string>();
+    for (const p of players) {
+      if (p.overallPick < UDFA_PICK && p.team) m.set(p.overallPick, p.team);
+    }
+    return m;
+  }, [players]);
   const [sortKey, setSortKey] = useState<StatKey | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [search, setSearch] = useState("");
@@ -222,21 +240,24 @@ export function RedraftTable({
   function handleCsv() {
     const headers = [
       "Slot",
+      "SlotTeam",
       "Player",
       "ActualPick",
       "Delta",
       "College",
-      "Team",
+      "DraftedBy",
       ...REDRAFT_STAT_COLUMNS.map((c) => c.label),
     ];
     const rows = displayIds.map((id, i) => {
       const p = byId.get(id)!;
       const slot = i + 1;
+      const udfa = p.overallPick >= UDFA_PICK;
       return [
         slot,
+        slotTeams.get(slot) ?? "",
         p.name,
-        p.overallPick,
-        pickDelta(p.overallPick, slot),
+        udfa ? "UDFA" : p.overallPick,
+        udfa ? "" : pickDelta(p.overallPick, slot),
         p.college ?? "",
         p.team ?? "",
         ...REDRAFT_STAT_COLUMNS.map((c) => {
@@ -342,12 +363,15 @@ export function RedraftTable({
           <table className="w-full border-collapse">
             <thead className="bg-surface-2 sticky top-0 z-20">
               <tr className="text-ink-faint text-left shadow-[inset_0_-1px_0_0_var(--color-border)]">
-                <th className="w-9" />
-                <th className="w-12 px-2 py-2.5 text-right font-mono text-[11px] uppercase">
-                  Slot
+                <th className="w-8" />
+                <th className="w-10 px-1 py-2 text-right font-mono text-[11px] uppercase">
+                  Pick
                 </th>
-                <th className="w-[72px]" />
-                <th className="px-3 py-2.5 font-mono text-[11px] uppercase">
+                <th className="w-12 px-2 py-2 text-left font-mono text-[11px] uppercase">
+                  Team
+                </th>
+                <th className="w-[54px]" />
+                <th className="px-2.5 py-2 font-mono text-[11px] uppercase">
                   Player
                 </th>
                 {REDRAFT_STAT_COLUMNS.map((col) => (
@@ -377,6 +401,7 @@ export function RedraftTable({
                       key={id}
                       player={p}
                       slot={slot}
+                      slotTeam={slotTeams.get(slot) ?? null}
                       total={displayIds.length}
                       draggable={draggable}
                       heat={heat}

@@ -14,8 +14,8 @@ import {
 } from "lucide-react";
 import { Headshot } from "@/components/Headshot";
 import { DeltaBadge } from "@/components/DeltaBadge";
-import { teamColor } from "@/lib/teamColors";
-import { REDRAFT_STAT_COLUMNS, type StatKey } from "@/lib/constants";
+import { teamAbbr, teamColor } from "@/lib/teamColors";
+import { REDRAFT_STAT_COLUMNS, UDFA_PICK, type StatKey } from "@/lib/constants";
 import { fmtInt, fmtNum, fmtPct, pickDelta } from "@/lib/format";
 import { heatClass, type HeatLevel } from "@/lib/heat";
 import type { Player } from "@/lib/types";
@@ -23,6 +23,7 @@ import type { Player } from "@/lib/types";
 export function RedraftRow({
   player,
   slot,
+  slotTeam,
   total,
   draggable,
   heat,
@@ -31,6 +32,8 @@ export function RedraftRow({
 }: {
   player: Player;
   slot: number;
+  /** The franchise that actually owned this slot's pick on draft night. */
+  slotTeam: string | null;
   total: number;
   draggable: boolean;
   heat: (key: StatKey, value: number | null) => HeatLevel;
@@ -47,8 +50,10 @@ export function RedraftRow({
     isDragging,
   } = useSortable({ id: player.id, disabled: !draggable });
 
-  const delta = pickDelta(player.overallPick, slot);
-  const accent = teamColor(player.team);
+  const isUdfa = player.overallPick >= UDFA_PICK;
+  const playerAccent = teamColor(player.team);
+  const slotAccent = teamColor(slotTeam);
+  const slotAbbr = teamAbbr(slotTeam);
 
   return (
     <tr
@@ -56,7 +61,7 @@ export function RedraftRow({
       style={{
         transform: CSS.Transform.toString(transform),
         transition,
-        boxShadow: `inset 3px 0 0 0 ${accent}`,
+        boxShadow: `inset 3px 0 0 0 ${slotTeam ? slotAccent : "transparent"}`,
       }}
       className={[
         "border-border/70 group border-b",
@@ -66,56 +71,80 @@ export function RedraftRow({
       ].join(" ")}
     >
       {/* drag handle */}
-      <td className="w-9 pl-2">
+      <td className="w-8 pl-1.5">
         <button
           ref={setActivatorNodeRef}
           {...attributes}
           {...listeners}
           aria-label={`Drag ${player.name}`}
           disabled={!draggable}
-          className="text-ink-faint hover:text-ink cursor-grab touch-none rounded p-1.5 transition-colors active:cursor-grabbing disabled:cursor-default disabled:opacity-20"
+          className="text-ink-faint hover:text-ink cursor-grab touch-none rounded p-1 transition-colors active:cursor-grabbing disabled:cursor-default disabled:opacity-20"
         >
-          <GripVertical className="h-5 w-5" />
+          <GripVertical className="h-4 w-4" />
         </button>
       </td>
 
-      {/* current slot */}
-      <td className="w-12 py-3 pr-1 text-right">
+      {/* slot + the team that owned this pick (anchored to the slot, not the player) */}
+      <td className="w-10 py-1.5 pr-1 text-right">
         <span
           className={[
-            "display text-2xl font-bold leading-none",
+            "display text-xl font-bold leading-none",
             slot <= 14 ? "text-accent" : "text-ink-muted",
           ].join(" ")}
         >
           {slot}
         </span>
       </td>
+      <td className="w-12 py-1.5 pl-2">
+        {slotAbbr ? (
+          <span
+            className="tnum rounded px-1.5 py-0.5 text-[11px] font-bold"
+            style={{ color: slotAccent, background: `${slotAccent}1a` }}
+            title={slotTeam ?? undefined}
+          >
+            {slotAbbr}
+          </span>
+        ) : (
+          <span className="text-ink-faint text-[11px]">—</span>
+        )}
+      </td>
 
       {/* headshot */}
-      <td className="w-[72px] py-2 pl-3">
+      <td className="w-[54px] py-1.5 pl-1">
         <Headshot
           src={player.headshotUrl}
           alt={player.name}
-          size={56}
-          accent={accent}
+          size={44}
+          accent={playerAccent}
         />
       </td>
 
       {/* name + actual pick + delta */}
-      <td className="min-w-[230px] py-2 pl-3 pr-2">
-        <div className="flex items-center gap-2.5">
+      <td className="min-w-[210px] py-1.5 pl-2.5 pr-2">
+        <div className="flex items-center gap-2">
           <button
             onClick={onOpen}
-            className="display text-ink hover:text-accent cursor-pointer truncate text-left text-xl font-bold leading-tight transition-colors duration-150"
+            className="display text-ink hover:text-accent cursor-pointer truncate text-left text-lg font-bold leading-tight transition-colors duration-150"
           >
             {player.name}
           </button>
-          <DeltaBadge delta={delta} />
+          {isUdfa ? (
+            <span className="border-accent/40 text-accent shrink-0 rounded border px-1 py-px font-mono text-[9px] font-semibold uppercase">
+              UDFA
+            </span>
+          ) : (
+            <DeltaBadge delta={pickDelta(player.overallPick, slot)} />
+          )}
         </div>
-        <div className="text-ink-faint mt-1 flex items-center gap-2 text-xs">
-          <span className="tnum shrink-0 font-medium" style={{ color: accent }}>
-            #{player.overallPick}
-          </span>
+        <div className="text-ink-faint mt-0.5 flex items-center gap-1.5 text-[11px] leading-tight">
+          {!isUdfa && (
+            <span
+              className="tnum shrink-0 font-semibold"
+              style={{ color: playerAccent }}
+            >
+              #{player.overallPick}
+            </span>
+          )}
           <span className="truncate">
             {[player.college, player.team].filter(Boolean).join(" · ") || "—"}
           </span>
@@ -136,7 +165,7 @@ export function RedraftRow({
           <td
             key={col.key}
             className={[
-              "tnum px-2 py-2 text-right text-[15px]",
+              "tnum px-2 py-1.5 text-right text-sm",
               col.cellClass ?? "",
               v === null ? "text-ink-faint/60" : heatClass(heat(col.key, v)),
             ].join(" ")}
@@ -147,7 +176,7 @@ export function RedraftRow({
       })}
 
       {/* row actions */}
-      <td className="w-10 pr-2 text-right">
+      <td className="w-9 pr-1.5 text-right">
         <RowMenu
           name={player.name}
           slot={slot}
@@ -189,7 +218,7 @@ function RowMenu({
       <DropdownMenu.Trigger asChild>
         <button
           aria-label={`Actions for ${name}`}
-          className="text-ink-faint hover:text-ink cursor-pointer rounded-md p-1.5 opacity-0 transition-all duration-150 focus-visible:opacity-100 group-hover:opacity-100 data-[state=open]:opacity-100"
+          className="text-ink-faint hover:text-ink cursor-pointer rounded-md p-1 opacity-0 transition-all duration-150 focus-visible:opacity-100 group-hover:opacity-100 data-[state=open]:opacity-100"
         >
           <MoreVertical className="h-4 w-4" />
         </button>

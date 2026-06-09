@@ -5,6 +5,9 @@ export const REDRAFT_YEARS = [
 
 export const PROSPECT_YEAR = 2026;
 
+/** Sentinel overall_pick base for undrafted players (101, 102, … per class). */
+export const UDFA_PICK = 100;
+
 export type StatKey =
   | "gp"
   | "ppg"
