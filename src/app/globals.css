@@ -1,26 +1,30 @@
 @import "tailwindcss";
 
 /* ---------------------------------------------------------------------------
-   Design tokens — "luxury sports media meets analytics terminal".
-   Dark base, a single warm gold accent, dense readable tables.
+   Design tokens — bold sports media on a dark analytics base.
+   Oversized condensed type for names, mono tabular numerals for stats,
+   team-color accents per row, one warm gold brand accent.
    --------------------------------------------------------------------------- */
 @theme {
-  --color-base: #0a0a0b;
-  --color-surface: #121214;
-  --color-surface-2: #18181b;
-  --color-border: #26262b;
-  --color-border-strong: #34343a;
-  --color-ink: #f4f4f5;
-  --color-ink-muted: #a1a1aa;
-  --color-ink-faint: #6b6b73;
+  --color-base: #0a0c10;
+  --color-surface: #12151b;
+  --color-surface-2: #191e26;
+  --color-surface-3: #222834;
+  --color-border: #262c37;
+  --color-border-strong: #39414f;
+  --color-ink: #f5f6f8;
+  --color-ink-muted: #9aa3b2;
+  --color-ink-faint: #5d6675;
 
-  --color-accent: #e8b54a;
+  --color-accent: #f5b942;
   --color-accent-dim: #8a6a26;
-  --color-up: #4ade80;
-  --color-down: #f87171;
+  --color-up: #34d399;
+  --color-down: #fb6f84;
 
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", monospace;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, "SF Mono", monospace;
+  --font-display: var(--font-barlow), var(--font-inter), ui-sans-serif,
+    sans-serif;
 }
 
 html,
@@ -36,6 +40,13 @@ body {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1;
   letter-spacing: -0.01em;
+}
+
+/* Oversized condensed display type for names, slots, and section headers. */
+.display {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
 }
 
 /* Thin custom scrollbar to match the terminal feel. */
@@ -57,4 +68,20 @@ body {
 .dragging-active * {
   user-select: none;
   cursor: grabbing !important;
+}
+
+/* Visible keyboard focus without boxing every hover state. */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

@@ -3,12 +3,14 @@
 import { useMemo, useRef, useState } from "react";
 import {
   DndContext,
+  DragOverlay,
   PointerSensor,
   KeyboardSensor,
   closestCenter,
   useSensor,
   useSensors,
   type DragEndEvent,
+  type DragStartEvent,
 } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -17,14 +19,27 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import { toast } from "sonner";
+import {
+  Check,
+  Download,
+  ImageDown,
+  RotateCcw,
+  Search,
+  X,
+} from "lucide-react";
 import { RedraftRow } from "./RedraftRow";
+import { PlayerDrawer } from "./PlayerDrawer";
 import { StatHeader } from "@/components/StatHeader";
 import { SaveIndicator } from "@/components/SaveIndicator";
+import { Headshot } from "@/components/Headshot";
 import { useAutoSave } from "@/hooks/useAutoSave";
 import { createClient } from "@/lib/supabase/client";
 import { sortPlayerIds, type SortDir } from "@/lib/sort";
+import { buildHeat } from "@/lib/heat";
+import { teamColor } from "@/lib/teamColors";
 import { REDRAFT_STAT_COLUMNS, type StatKey } from "@/lib/constants";
-import { fmtInt, fmtNum, fmtPct, pickDelta } from "@/lib/format";
+import { pickDelta } from "@/lib/format";
 import { exportCsv, exportPng } from "@/lib/export";
 import type { Player } from "@/lib/types";
 
@@ -48,12 +63,25 @@ export function RedraftTable({
         .map((p) => p.id),
     [players],
   );
+  const heat = useMemo(
+    () =>
+      buildHeat(
+        players,
+        REDRAFT_STAT_COLUMNS.map((c) => c.key),
+      ),
+    [players],
+  );
 
   const [order, setOrder] = useState<string[]>(initialOrder);
   const [sortKey, setSortKey] = useState<StatKey | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("desc");
+  const [search, setSearch] = useState("");
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [open, setOpen] = useState<Player | null>(null);
+
   const orderRef = useRef(order);
   orderRef.current = order;
+  const historyRef = useRef<string[][]>([]);
   const tableRef = useRef<HTMLDivElement>(null);
 
   const supabase = useMemo(() => createClient(), []);
@@ -70,15 +98,39 @@ export function RedraftTable({
       },
       { onConflict: "user_id,draft_year" },
     );
-    if (error) throw error;
+    if (error) {
+      toast.error("Save failed — check your connection.");
+      throw error;
+    }
   });
 
-  // What's actually shown: sorted by stat (a transient lens) or the manual order.
+  // What's shown: the manual order, optionally through a stat lens, then the
+  // search filter. Dragging is only enabled on the unfiltered view.
   const displayIds = useMemo(
-    () =>
-      sortKey ? sortPlayerIds(players, order, sortKey, sortDir) : order,
+    () => (sortKey ? sortPlayerIds(players, order, sortKey, sortDir) : order),
     [players, order, sortKey, sortDir],
   );
+  const searching = search.trim().length > 0;
+  const visibleIds = useMemo(() => {
+    if (!searching) return displayIds;
+    const q = search.trim().toLowerCase();
+    return displayIds.filter((id) => {
+      const p = byId.get(id);
+      if (!p) return false;
+      return (
+        p.name.toLowerCase().includes(q) ||
+        (p.college?.toLowerCase().includes(q) ?? false) ||
+        (p.team?.toLowerCase().includes(q) ?? false)
+      );
+    });
+  }, [displayIds, byId, search, searching]);
+  const draggable = !searching;
+
+  const slotOf = useMemo(() => {
+    const m = new Map<string, number>();
+    displayIds.forEach((id, i) => m.set(id, i + 1));
+    return m;
+  }, [displayIds]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
@@ -87,7 +139,39 @@ export function RedraftTable({
     }),
   );
 
+  /** Commit a new order: history for undo, persist, toast. */
+  function commit(next: string[], message?: string) {
+    historyRef.current.push(orderRef.current);
+    if (historyRef.current.length > 50) historyRef.current.shift();
+    setSortKey(null);
+    setOrder(next);
+    orderRef.current = next;
+    trigger();
+    if (message) {
+      toast(message, {
+        action: { label: "Undo", onClick: undo },
+        duration: 4000,
+      });
+    }
+  }
+
+  function undo() {
+    const prev = historyRef.current.pop();
+    if (!prev) return;
+    setSortKey(null);
+    setOrder(prev);
+    orderRef.current = prev;
+    trigger();
+  }
+
+  function handleDragStart(event: DragStartEvent) {
+    setActiveId(String(event.active.id));
+    document.body.classList.add("dragging-active");
+  }
+
   function handleDragEnd(event: DragEndEvent) {
+    setActiveId(null);
+    document.body.classList.remove("dragging-active");
     const { active, over } = event;
     if (!over || active.id === over.id) return;
     const from = displayIds.indexOf(String(active.id));
@@ -95,11 +179,26 @@ export function RedraftTable({
     if (from < 0 || to < 0) return;
     // Dragging takes over: bake the current (possibly sorted) view into the
     // manual order, then apply the move.
-    const next = arrayMove(displayIds, from, to);
-    setSortKey(null);
-    setOrder(next);
-    orderRef.current = next;
-    trigger();
+    const p = byId.get(String(active.id));
+    commit(
+      arrayMove(displayIds, from, to),
+      p ? `${p.name} → #${to + 1}` : undefined,
+    );
+  }
+
+  function handleDragCancel() {
+    setActiveId(null);
+    document.body.classList.remove("dragging-active");
+  }
+
+  function moveTo(id: string, slot: number) {
+    const from = displayIds.indexOf(id);
+    if (from < 0) return;
+    const p = byId.get(id);
+    commit(
+      arrayMove(displayIds, from, slot - 1),
+      p ? `${p.name} → #${slot}` : undefined,
+    );
   }
 
   function handleSort(key: StatKey) {
@@ -111,11 +210,13 @@ export function RedraftTable({
     }
   }
 
+  function applySortAsOrder() {
+    if (!sortKey) return;
+    commit([...displayIds], `Order set by ${sortKey.toUpperCase()}`);
+  }
+
   function resetToActual() {
-    setSortKey(null);
-    setOrder(actualOrder);
-    orderRef.current = actualOrder;
-    trigger();
+    commit(actualOrder, "Reset to actual draft order");
   }
 
   function handleCsv() {
@@ -153,90 +254,188 @@ export function RedraftTable({
     }
   }
 
+  const activePlayer = activeId ? byId.get(activeId) : null;
+
   return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <h2 className="text-lg font-semibold tracking-tight">
-            {year} Redraft
+    <div className="space-y-4">
+      {/* title + actions */}
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div className="flex items-center gap-4">
+          <h2 className="display text-4xl font-bold leading-none">
+            <span className="text-accent">{year}</span> Redraft
           </h2>
           <SaveIndicator state={state} />
-          {sortKey && (
-            <span className="text-ink-faint font-mono text-xs">
-              viewing by {sortKey.toUpperCase()} — drag a row to lock it in
-            </span>
-          )}
         </div>
         <div className="flex items-center gap-2">
-          <ToolButton onClick={resetToActual}>Reset to actual order</ToolButton>
-          <ToolButton onClick={handleCsv}>Export CSV</ToolButton>
-          <ToolButton onClick={handlePng}>Export PNG</ToolButton>
+          <ToolButton onClick={resetToActual} icon={<RotateCcw className="h-3.5 w-3.5" />}>
+            Reset
+          </ToolButton>
+          <ToolButton onClick={handleCsv} icon={<Download className="h-3.5 w-3.5" />}>
+            CSV
+          </ToolButton>
+          <ToolButton onClick={handlePng} icon={<ImageDown className="h-3.5 w-3.5" />}>
+            PNG
+          </ToolButton>
         </div>
       </div>
 
-      <div
-        ref={tableRef}
-        className="border-border bg-surface overflow-x-auto rounded-xl border"
-      >
-        <table className="w-full border-collapse text-sm">
-          <thead>
-            <tr className="border-border bg-surface-2/60 text-ink-faint border-b text-left">
-              <th className="w-8" />
-              <th className="w-10 px-2 py-2 text-right font-mono text-[11px] uppercase">
-                #
-              </th>
-              <th className="w-12" />
-              <th className="px-2 py-2 font-mono text-[11px] uppercase">
-                Player
-              </th>
-              {REDRAFT_STAT_COLUMNS.map((col) => (
-                <StatHeader
-                  key={col.key}
-                  label={col.label}
-                  active={sortKey === col.key}
-                  dir={sortDir}
-                  onClick={() => handleSort(col.key)}
-                />
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              modifiers={[restrictToVerticalAxis]}
-              onDragEnd={handleDragEnd}
+      {/* search + mode banners */}
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="relative">
+          <Search className="text-ink-faint pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search player, college, team…"
+            className="bg-surface-2 border-border focus:border-accent w-72 rounded-lg border py-2 pl-8 pr-8 text-sm outline-none transition-colors"
+          />
+          {searching && (
+            <button
+              onClick={() => setSearch("")}
+              aria-label="Clear search"
+              className="text-ink-faint hover:text-ink absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer rounded p-0.5"
             >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
+        {searching && (
+          <span className="text-ink-faint font-mono text-xs">
+            {visibleIds.length} match{visibleIds.length === 1 ? "" : "es"} —
+            clear to reorder
+          </span>
+        )}
+        {sortKey && !searching && (
+          <span className="border-accent/30 bg-accent/5 text-accent flex items-center gap-2 rounded-lg border px-3 py-1.5 font-mono text-xs uppercase">
+            Viewing by {sortKey} {sortDir === "desc" ? "↓" : "↑"}
+            <button
+              onClick={applySortAsOrder}
+              className="bg-accent text-base hover:bg-accent/90 inline-flex cursor-pointer items-center gap-1 rounded px-2 py-0.5 font-semibold transition-colors"
+            >
+              <Check className="h-3 w-3" strokeWidth={3} /> Apply as my order
+            </button>
+            <button
+              onClick={() => setSortKey(null)}
+              aria-label="Clear sort"
+              className="hover:text-ink cursor-pointer"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </span>
+        )}
+      </div>
+
+      {/* table */}
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        modifiers={[restrictToVerticalAxis]}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        onDragCancel={handleDragCancel}
+      >
+        <div
+          ref={tableRef}
+          className="border-border bg-surface overflow-auto rounded-xl border"
+          style={{ maxHeight: "calc(100vh - 230px)", minHeight: 360 }}
+        >
+          <table className="w-full border-collapse">
+            <thead className="bg-surface-2 sticky top-0 z-20">
+              <tr className="text-ink-faint text-left shadow-[inset_0_-1px_0_0_var(--color-border)]">
+                <th className="w-9" />
+                <th className="w-12 px-2 py-2.5 text-right font-mono text-[11px] uppercase">
+                  Slot
+                </th>
+                <th className="w-[72px]" />
+                <th className="px-3 py-2.5 font-mono text-[11px] uppercase">
+                  Player
+                </th>
+                {REDRAFT_STAT_COLUMNS.map((col) => (
+                  <StatHeader
+                    key={col.key}
+                    label={col.label}
+                    active={sortKey === col.key}
+                    dir={sortDir}
+                    onClick={() => handleSort(col.key)}
+                    className={col.cellClass ?? ""}
+                  />
+                ))}
+                <th className="w-10" />
+              </tr>
+            </thead>
+            <tbody>
               <SortableContext
-                items={displayIds}
+                items={visibleIds}
                 strategy={verticalListSortingStrategy}
               >
-                {displayIds.map((id, i) => {
+                {visibleIds.map((id) => {
                   const p = byId.get(id);
                   if (!p) return null;
-                  return <RedraftRow key={id} player={p} slot={i + 1} />;
+                  const slot = slotOf.get(id) ?? 0;
+                  return (
+                    <RedraftRow
+                      key={id}
+                      player={p}
+                      slot={slot}
+                      total={displayIds.length}
+                      draggable={draggable}
+                      heat={heat}
+                      onOpen={() => setOpen(p)}
+                      onMoveTo={(s) => moveTo(id, s)}
+                    />
+                  );
                 })}
               </SortableContext>
-            </DndContext>
-          </tbody>
-        </table>
-      </div>
+            </tbody>
+          </table>
+        </div>
+
+        <DragOverlay>
+          {activePlayer && (
+            <div
+              className="bg-surface-3 border-border-strong flex items-center gap-3 rounded-xl border px-4 py-2"
+              style={{
+                boxShadow: `0 16px 48px rgba(0,0,0,.6), inset 3px 0 0 0 ${teamColor(activePlayer.team)}`,
+              }}
+            >
+              <Headshot
+                src={activePlayer.headshotUrl}
+                alt={activePlayer.name}
+                size={44}
+                accent={teamColor(activePlayer.team)}
+              />
+              <span className="display text-ink text-lg font-bold">
+                {activePlayer.name}
+              </span>
+            </div>
+          )}
+        </DragOverlay>
+      </DndContext>
+
+      <PlayerDrawer
+        player={open}
+        slot={open ? (slotOf.get(open.id) ?? null) : null}
+        onClose={() => setOpen(null)}
+      />
     </div>
   );
 }
 
 function ToolButton({
   children,
+  icon,
   onClick,
 }: {
   children: React.ReactNode;
+  icon?: React.ReactNode;
   onClick: () => void;
 }) {
   return (
     <button
       onClick={onClick}
-      className="border-border text-ink-muted hover:border-border-strong hover:text-ink rounded-md border px-2.5 py-1.5 font-mono text-xs transition-colors"
+      className="border-border text-ink-muted hover:border-border-strong hover:text-ink inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 font-mono text-xs uppercase tracking-wide transition-colors duration-150"
     >
+      {icon}
       {children}
     </button>
   );

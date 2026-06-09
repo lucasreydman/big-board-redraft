@@ -2,24 +2,33 @@
 
 import { useState } from "react";
 
-// A clean rounded headshot frame. Falls back to a silhouette on 404 / missing
-// URL (players who never played, dead CDN links, prospects without an ESPN id).
+// A rounded headshot frame with an optional team/position accent ring.
+// Falls back to a silhouette on 404 / missing URL (players who never played,
+// dead CDN links, prospects without an ESPN id).
 export function Headshot({
   src,
   alt,
-  size = 40,
+  size = 56,
+  accent,
 }: {
   src: string | null | undefined;
   alt: string;
   size?: number;
+  accent?: string;
 }) {
   const [failed, setFailed] = useState(false);
   const showSilhouette = !src || failed;
 
   return (
     <div
-      className="bg-surface-2 ring-border relative shrink-0 overflow-hidden rounded-full ring-1"
-      style={{ width: size, height: size }}
+      className="bg-surface-3 relative shrink-0 overflow-hidden rounded-xl"
+      style={{
+        width: size,
+        height: size,
+        boxShadow: accent
+          ? `inset 0 0 0 1.5px ${accent}55, inset 0 -2px 0 0 ${accent}`
+          : "inset 0 0 0 1px var(--color-border)",
+      }}
     >
       {showSilhouette ? (
         <Silhouette />
@@ -34,7 +43,7 @@ export function Headshot({
           height={size}
           loading="lazy"
           onError={() => setFailed(true)}
-          className="h-full w-full object-cover"
+          className="h-full w-full object-cover object-top"
         />
       )}
     </div>

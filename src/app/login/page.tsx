@@ -61,7 +61,7 @@ export default function LoginPage() {
           <div className="text-accent font-mono text-xs tracking-[0.3em] uppercase">
             The Board
           </div>
-          <h1 className="mt-2 text-2xl font-semibold tracking-tight">
+          <h1 className="display mt-2 text-4xl font-bold">
             Big&nbsp;Board&nbsp;/&nbsp;Redraft
           </h1>
           <p className="text-ink-muted mt-2 text-sm">

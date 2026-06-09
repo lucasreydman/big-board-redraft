@@ -3,12 +3,14 @@
 import { useMemo, useRef, useState } from "react";
 import {
   DndContext,
+  DragOverlay,
   PointerSensor,
   KeyboardSensor,
   closestCenter,
   useSensor,
   useSensors,
   type DragEndEvent,
+  type DragStartEvent,
 } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -17,14 +19,25 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import { toast } from "sonner";
+import {
+  Check,
+  Download,
+  ImageDown,
+  ListPlus,
+  Plus,
+  Search,
+  X,
+} from "lucide-react";
 import { ProspectRow } from "./ProspectRow";
 import { TierDivider } from "./TierDivider";
 import { SaveIndicator } from "@/components/SaveIndicator";
-import { StatHeader } from "@/components/StatHeader";
 import { Headshot } from "@/components/Headshot";
 import { useAutoSave } from "@/hooks/useAutoSave";
 import { createClient } from "@/lib/supabase/client";
 import { sortProspectIds, type SortDir } from "@/lib/sort";
+import { buildProspectHeat } from "@/lib/heat";
+import { positionColor } from "@/lib/teamColors";
 import {
   PROSPECT_STAT_COLUMNS,
   POSITIONS,
@@ -44,7 +57,25 @@ export function BigBoardClient({
     () => new Map(prospects.map((p) => [p.id, p])),
     [prospects],
   );
-  const allIds = useMemo(() => prospects.map((p) => p.id), [prospects]);
+  // A fresh board starts in consensus order (parsed from projected_range,
+  // e.g. "#13" or "#10-20"), not whatever order the rows came back in.
+  const allIds = useMemo(() => {
+    const rank = (p: Prospect) => {
+      const m = p.projectedRange?.match(/\d+/);
+      return m ? parseInt(m[0], 10) : Number.POSITIVE_INFINITY;
+    };
+    return [...prospects]
+      .sort((a, b) => rank(a) - rank(b) || a.name.localeCompare(b.name))
+      .map((p) => p.id);
+  }, [prospects]);
+  const heat = useMemo(
+    () =>
+      buildProspectHeat(
+        prospects,
+        PROSPECT_STAT_COLUMNS.map((c) => c.key),
+      ),
+    [prospects],
+  );
 
   const [boardId, setBoardId] = useState<string | null>(
     initialBoard?.id ?? null,
@@ -65,8 +96,10 @@ export function BigBoardClient({
   const [search, setSearch] = useState("");
   const [posFilter, setPosFilter] = useState<string>("");
   const [openNotes, setOpenNotes] = useState<string | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
 
   const boardRef = useRef<HTMLDivElement>(null);
+  const historyRef = useRef<{ order: string[]; tiers: Tier[] }[]>([]);
 
   // Keep refs fresh so the debounced saver always persists current state.
   const stateRef = useRef({ order, tiers, notes, name });
@@ -91,14 +124,20 @@ export function BigBoardClient({
         .from("big_boards")
         .update(payload)
         .eq("id", boardId);
-      if (error) throw error;
+      if (error) {
+        toast.error("Save failed — check your connection.");
+        throw error;
+      }
     } else {
       const { data, error } = await supabase
         .from("big_boards")
         .insert(payload)
         .select("id")
         .single();
-      if (error) throw error;
+      if (error) {
+        toast.error("Save failed — check your connection.");
+        throw error;
+      }
       if (data) setBoardId(data.id);
     }
   });
@@ -134,8 +173,6 @@ export function BigBoardClient({
     (p) => !onBoard.has(p.id) && matchesFilter(p),
   );
 
-  const rankOf = (id: string) => order.indexOf(id) + 1;
-
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
     useSensor(KeyboardSensor, {
@@ -143,17 +180,68 @@ export function BigBoardClient({
     }),
   );
 
+  /** Commit an order/tier change: history for undo, persist, toast. */
+  function commit(
+    next: { order?: string[]; tiers?: Tier[] },
+    message?: string,
+  ) {
+    historyRef.current.push({
+      order: stateRef.current.order,
+      tiers: stateRef.current.tiers,
+    });
+    if (historyRef.current.length > 50) historyRef.current.shift();
+    if (next.order) {
+      setOrder(next.order);
+      stateRef.current.order = next.order;
+    }
+    if (next.tiers) {
+      setTiers(next.tiers);
+      stateRef.current.tiers = next.tiers;
+    }
+    trigger();
+    if (message) {
+      toast(message, {
+        action: { label: "Undo", onClick: undo },
+        duration: 4000,
+      });
+    }
+  }
+
+  function undo() {
+    const prev = historyRef.current.pop();
+    if (!prev) return;
+    setSortKey(null);
+    setOrder(prev.order);
+    setTiers(prev.tiers);
+    stateRef.current.order = prev.order;
+    stateRef.current.tiers = prev.tiers;
+    trigger();
+  }
+
+  function handleDragStart(event: DragStartEvent) {
+    setActiveId(String(event.active.id));
+    document.body.classList.add("dragging-active");
+  }
+
   function handleDragEnd(event: DragEndEvent) {
+    setActiveId(null);
+    document.body.classList.remove("dragging-active");
     const { active, over } = event;
     if (!over || active.id === over.id) return;
     const from = lensOrder.indexOf(String(active.id));
     const to = lensOrder.indexOf(String(over.id));
     if (from < 0 || to < 0) return;
-    const next = arrayMove(lensOrder, from, to);
+    const p = byId.get(String(active.id));
     setSortKey(null);
-    setOrder(next);
-    stateRef.current.order = next;
-    trigger();
+    commit(
+      { order: arrayMove(lensOrder, from, to) },
+      p ? `${p.name} → #${to + 1}` : undefined,
+    );
+  }
+
+  function handleDragCancel() {
+    setActiveId(null);
+    document.body.classList.remove("dragging-active");
   }
 
   function handleSort(key: ProspectStatKey) {
@@ -164,28 +252,32 @@ export function BigBoardClient({
     }
   }
 
+  function applySortAsOrder() {
+    if (!sortKey) return;
+    const next = [...lensOrder];
+    setSortKey(null);
+    commit({ order: next }, `Order set by ${sortKey.toUpperCase()}`);
+  }
+
   function insertTierAt(index: number) {
     if (tiers.some((t) => t.position === index)) return;
     const next = [...tiers, { position: index, label: "New Tier" }].sort(
       (a, b) => a.position - b.position,
+    );
+    commit({ tiers: next });
+  }
+
+  function labelTier(position: number, label: string) {
+    const next = tiers.map((t) =>
+      t.position === position ? { ...t, label } : t,
     );
     setTiers(next);
     stateRef.current.tiers = next;
     trigger();
   }
 
-  function labelTier(position: number, label: string) {
-    const next = tiers.map((t) => (t.position === position ? { ...t, label } : t));
-    setTiers(next);
-    stateRef.current.tiers = next;
-    trigger();
-  }
-
   function removeTier(position: number) {
-    const next = tiers.filter((t) => t.position !== position);
-    setTiers(next);
-    stateRef.current.tiers = next;
-    trigger();
+    commit({ tiers: tiers.filter((t) => t.position !== position) });
   }
 
   function setNote(id: string, v: string) {
@@ -197,27 +289,30 @@ export function BigBoardClient({
   }
 
   function addToBoard(id: string) {
-    const next = [...order, id];
-    setOrder(next);
-    stateRef.current.order = next;
-    trigger();
+    const p = byId.get(id);
+    commit(
+      { order: [...order, id] },
+      p ? `${p.name} added at #${order.length + 1}` : undefined,
+    );
   }
 
   function removeFromBoard(id: string) {
     const idx = order.indexOf(id);
     if (idx < 0) return;
-    const next = order.filter((x) => x !== id);
+    const p = byId.get(id);
+    const nextOrder = order.filter((x) => x !== id);
     // Tiers are fixed slots; shift those past the removed index down by one.
     const nextTiers = tiers
       .map((t) => (t.position > idx ? { ...t, position: t.position - 1 } : t))
-      .filter((t) => t.position <= next.length);
+      .filter((t) => t.position <= nextOrder.length);
     const nextNotes = { ...notes };
     delete nextNotes[id];
-    setOrder(next);
-    setTiers(nextTiers);
     setNotes(nextNotes);
-    stateRef.current = { ...stateRef.current, order: next, tiers: nextTiers, notes: nextNotes };
-    trigger();
+    stateRef.current.notes = nextNotes;
+    commit(
+      { order: nextOrder, tiers: nextTiers },
+      p ? `${p.name} removed from board` : undefined,
+    );
   }
 
   function renameBoard(v: string) {
@@ -279,7 +374,8 @@ export function BigBoardClient({
   }
 
   async function handlePng() {
-    if (boardRef.current) await exportPng(boardRef.current, "big-board-2026.png");
+    if (boardRef.current)
+      await exportPng(boardRef.current, "big-board-2026.png");
   }
 
   // ---- render the interleaved tiers + prospects ----
@@ -291,7 +387,7 @@ export function BigBoardClient({
     if (!filterActive) {
       tiers
         .filter((t) => t.position === displayIdx)
-        .forEach((t) => (
+        .forEach((t) =>
           rows.push(
             <TierDivider
               key={`tier-${t.position}`}
@@ -299,8 +395,8 @@ export function BigBoardClient({
               onLabel={(v) => labelTier(t.position, v)}
               onRemove={() => removeTier(t.position)}
             />,
-          )
-        ));
+          ),
+        );
     }
     rows.push(
       <ProspectRow
@@ -310,11 +406,10 @@ export function BigBoardClient({
         note={notes[id] ?? ""}
         notesOpen={openNotes === id}
         draggable={!filterActive}
+        heat={heat}
         onNoteChange={(v) => setNote(id, v)}
         onToggleNotes={() => setOpenNotes(openNotes === id ? null : id)}
-        onInsertTierAbove={
-          filterActive ? null : () => insertTierAt(fullIdx)
-        }
+        onInsertTierAbove={filterActive ? null : () => insertTierAt(fullIdx)}
         onRemove={() => removeFromBoard(id)}
       />,
     );
@@ -334,36 +429,67 @@ export function BigBoardClient({
       );
   }
 
+  const activeProspect = activeId ? byId.get(activeId) : null;
+
   return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
+    <div className="space-y-4">
+      {/* title + actions */}
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div className="flex items-center gap-4">
           <input
             value={name}
             onChange={(e) => renameBoard(e.target.value)}
-            className="text-ink focus:border-accent border-b border-transparent bg-transparent text-lg font-semibold tracking-tight outline-none"
+            aria-label="Board name"
+            className="display text-ink focus:border-accent w-[22ch] border-b-2 border-transparent bg-transparent text-3xl font-bold leading-none outline-none transition-colors"
           />
           <SaveIndicator state={state} />
         </div>
         <div className="flex items-center gap-2">
-          <ToolButton onClick={() => insertTierAt(0)}>＋ Tier (top)</ToolButton>
-          <ToolButton onClick={handleCsv}>Export CSV</ToolButton>
-          <ToolButton onClick={handlePng}>Export PNG</ToolButton>
+          <ToolButton
+            onClick={() => insertTierAt(0)}
+            icon={<ListPlus className="h-3.5 w-3.5" />}
+          >
+            Tier
+          </ToolButton>
+          <ToolButton
+            onClick={handleCsv}
+            icon={<Download className="h-3.5 w-3.5" />}
+          >
+            CSV
+          </ToolButton>
+          <ToolButton
+            onClick={handlePng}
+            icon={<ImageDown className="h-3.5 w-3.5" />}
+          >
+            PNG
+          </ToolButton>
         </div>
       </div>
 
       {/* filters */}
-      <div className="flex flex-wrap items-center gap-2">
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search name or school…"
-          className="bg-surface-2 border-border focus:border-accent w-56 rounded-md border px-3 py-1.5 text-sm outline-none"
-        />
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="relative">
+          <Search className="text-ink-faint pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search name or school…"
+            className="bg-surface-2 border-border focus:border-accent w-64 rounded-lg border py-2 pl-8 pr-8 text-sm outline-none transition-colors"
+          />
+          {search && (
+            <button
+              onClick={() => setSearch("")}
+              aria-label="Clear search"
+              className="text-ink-faint hover:text-ink absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer rounded p-0.5"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
         <select
           value={posFilter}
           onChange={(e) => setPosFilter(e.target.value)}
-          className="bg-surface-2 border-border focus:border-accent rounded-md border px-2 py-1.5 font-mono text-xs outline-none"
+          className="bg-surface-2 border-border focus:border-accent cursor-pointer rounded-lg border px-3 py-2 font-mono text-xs uppercase outline-none transition-colors"
         >
           <option value="">All positions</option>
           {POSITIONS.map((p) => (
@@ -378,62 +504,109 @@ export function BigBoardClient({
           </span>
         )}
         {sortKey && !filterActive && (
-          <span className="text-ink-faint font-mono text-xs">
-            viewing by {sortKey.toUpperCase()} — drag to lock it in
+          <span className="border-accent/30 bg-accent/5 text-accent flex items-center gap-2 rounded-lg border px-3 py-1.5 font-mono text-xs uppercase">
+            Viewing by {sortKey} {sortDir === "desc" ? "↓" : "↑"}
+            <button
+              onClick={applySortAsOrder}
+              className="bg-accent text-base hover:bg-accent/90 inline-flex cursor-pointer items-center gap-1 rounded px-2 py-0.5 font-semibold transition-colors"
+            >
+              <Check className="h-3 w-3" strokeWidth={3} /> Apply as my order
+            </button>
+            <button
+              onClick={() => setSortKey(null)}
+              aria-label="Clear sort"
+              className="hover:text-ink cursor-pointer"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
           </span>
         )}
       </div>
 
       {/* column header strip */}
-      <div className="text-ink-faint flex items-center gap-2 px-3">
-        <span className="w-5" />
-        <span className="w-7 text-right font-mono text-[11px] uppercase">#</span>
-        <span className="w-9" />
+      <div className="text-ink-faint flex items-center gap-2 px-2">
+        <span className="w-8" />
+        <span className="w-10 text-right font-mono text-[11px] uppercase">
+          Rank
+        </span>
+        <span className="w-[72px]" />
         <span className="flex-1 font-mono text-[11px] uppercase">Prospect</span>
         <div className="flex items-center">
           {PROSPECT_STAT_COLUMNS.map((col) => (
-            <span key={col.key} className="w-14 text-right">
-              <StatHeader
-                label={col.label}
-                active={sortKey === col.key}
-                dir={sortDir}
+            <span
+              key={col.key}
+              className={`w-16 justify-end text-right ${col.cellClass ?? "inline-flex"}`}
+            >
+              <button
                 onClick={() => handleSort(col.key)}
-              />
+                aria-label={`Sort by ${col.label}`}
+                className={[
+                  "hover:text-ink inline-flex cursor-pointer items-center font-mono text-[11px] uppercase tracking-wide transition-colors",
+                  sortKey === col.key ? "text-accent" : "text-ink-faint",
+                ].join(" ")}
+              >
+                {col.label}
+                {sortKey === col.key && (sortDir === "desc" ? " ↓" : " ↑")}
+              </button>
             </span>
           ))}
         </div>
         <span className="w-24" />
       </div>
 
-      <div
-        ref={boardRef}
-        className="border-border bg-surface overflow-hidden rounded-xl border"
+      {/* board */}
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        modifiers={[restrictToVerticalAxis]}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        onDragCancel={handleDragCancel}
       >
-        {visibleIds.length === 0 ? (
-          <div className="text-ink-muted p-8 text-center text-sm">
-            No prospects on the board match this view.
-          </div>
-        ) : (
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            modifiers={[restrictToVerticalAxis]}
-            onDragEnd={handleDragEnd}
-          >
+        <div
+          ref={boardRef}
+          className="border-border bg-surface overflow-hidden rounded-xl border"
+        >
+          {visibleIds.length === 0 ? (
+            <div className="text-ink-muted p-10 text-center text-sm">
+              No prospects on the board match this view.
+            </div>
+          ) : (
             <SortableContext
               items={visibleIds}
               strategy={verticalListSortingStrategy}
             >
               {rows}
             </SortableContext>
-          </DndContext>
-        )}
-      </div>
+          )}
+        </div>
+
+        <DragOverlay>
+          {activeProspect && (
+            <div
+              className="bg-surface-3 border-border-strong flex items-center gap-3 rounded-xl border px-4 py-2"
+              style={{
+                boxShadow: `0 16px 48px rgba(0,0,0,.6), inset 3px 0 0 0 ${positionColor(activeProspect.position)}`,
+              }}
+            >
+              <Headshot
+                src={activeProspect.headshotUrl}
+                alt={activeProspect.name}
+                size={44}
+                accent={positionColor(activeProspect.position)}
+              />
+              <span className="display text-ink text-lg font-bold">
+                {activeProspect.name}
+              </span>
+            </div>
+          )}
+        </DragOverlay>
+      </DndContext>
 
       {/* available prospects (not on board) */}
       {available.length > 0 && (
-        <div className="border-border bg-surface/50 rounded-xl border p-3">
-          <div className="text-ink-faint mb-2 font-mono text-[11px] uppercase tracking-wide">
+        <div className="border-border bg-surface/50 rounded-xl border p-4">
+          <div className="display text-ink-muted mb-3 text-sm font-semibold tracking-wide">
             Not on board ({available.length})
           </div>
           <div className="flex flex-wrap gap-2">
@@ -441,11 +614,16 @@ export function BigBoardClient({
               <button
                 key={p.id}
                 onClick={() => addToBoard(p.id)}
-                className="border-border hover:border-accent bg-surface-2 flex items-center gap-2 rounded-full border py-1 pl-1 pr-3 text-sm transition-colors"
+                className="border-border hover:border-accent bg-surface-2 flex cursor-pointer items-center gap-2.5 rounded-full border py-1.5 pl-1.5 pr-3.5 text-sm transition-colors duration-150"
               >
-                <Headshot src={p.headshotUrl} alt={p.name} size={22} />
+                <Headshot
+                  src={p.headshotUrl}
+                  alt={p.name}
+                  size={28}
+                  accent={positionColor(p.position)}
+                />
                 <span className="text-ink-muted">{p.name}</span>
-                <span className="text-accent font-mono text-xs">＋</span>
+                <Plus className="text-accent h-3.5 w-3.5" strokeWidth={3} />
               </button>
             ))}
           </div>
@@ -457,16 +635,19 @@ export function BigBoardClient({
 
 function ToolButton({
   children,
+  icon,
   onClick,
 }: {
   children: React.ReactNode;
+  icon?: React.ReactNode;
   onClick: () => void;
 }) {
   return (
     <button
       onClick={onClick}
-      className="border-border text-ink-muted hover:border-border-strong hover:text-ink rounded-md border px-2.5 py-1.5 font-mono text-xs transition-colors"
+      className="border-border text-ink-muted hover:border-border-strong hover:text-ink inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 font-mono text-xs uppercase tracking-wide transition-colors duration-150"
     >
+      {icon}
       {children}
     </button>
   );
