@@ -47,11 +47,7 @@ def mirror_players() -> None:
             continue
         path = f"players/{person_id}.png"
         public_url = sb.upload_storage(config.HEADSHOT_BUCKET, path, content, "image/png")
-        sb.upsert(
-            "players",
-            [{"id": p["id"], "headshot_url": public_url}],
-            on_conflict="id",
-        )
+        sb.update("players", p["id"], {"headshot_url": public_url})
         print(f"  + {person_id} -> storage")
 
 
@@ -70,11 +66,7 @@ def mirror_prospects() -> None:
             continue
         path = f"prospects/{espn_id}.png"
         public_url = sb.upload_storage(config.HEADSHOT_BUCKET, path, content, "image/png")
-        sb.upsert(
-            "prospects",
-            [{"id": p["id"], "headshot_url": public_url}],
-            on_conflict="id",
-        )
+        sb.update("prospects", p["id"], {"headshot_url": public_url})
         print(f"  + {espn_id} -> storage")
 
 

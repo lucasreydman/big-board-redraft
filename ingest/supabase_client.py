@@ -49,6 +49,17 @@ def upsert(
     return resp.json()
 
 
+def update(table: str, row_id: str, patch: dict[str, Any]) -> None:
+    """Update a single row by id. Partial payloads must PATCH, not upsert:
+    NOT NULL checks run on the proposed insert row before ON CONFLICT."""
+    url = f"{config.SUPABASE_URL}/rest/v1/{table}?id=eq.{row_id}"
+    resp = requests.patch(url, json=patch, headers=_headers(), timeout=60)
+    if resp.status_code >= 300:
+        raise RuntimeError(
+            f"Update {table} id={row_id} failed ({resp.status_code}): {resp.text[:500]}"
+        )
+
+
 def select(table: str, params: dict[str, str]) -> list[dict[str, Any]]:
     url = f"{config.SUPABASE_URL}/rest/v1/{table}"
     resp = requests.get(url, headers=_headers(), params=params, timeout=60)
