@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   Design tokens — "luxury sports media meets analytics terminal".
+   Dark base, a single warm gold accent, dense readable tables.
+   --------------------------------------------------------------------------- */
+@theme {
+  --color-base: #0a0a0b;
+  --color-surface: #121214;
+  --color-surface-2: #18181b;
+  --color-border: #26262b;
+  --color-border-strong: #34343a;
+  --color-ink: #f4f4f5;
+  --color-ink-muted: #a1a1aa;
+  --color-ink-faint: #6b6b73;
+
+  --color-accent: #e8b54a;
+  --color-accent-dim: #8a6a26;
+  --color-up: #4ade80;
+  --color-down: #f87171;
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", monospace;
+}
+
+html,
+body {
+  background: var(--color-base);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Tabular figures so stat columns line up vertically. */
+.tnum {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  letter-spacing: -0.01em;
+}
+
+/* Thin custom scrollbar to match the terminal feel. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-strong) transparent;
+}
+*::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: 999px;
+}
+
+/* While dragging a sortable row, suppress text selection. */
+.dragging-active,
+.dragging-active * {
+  user-select: none;
+  cursor: grabbing !important;
+}
