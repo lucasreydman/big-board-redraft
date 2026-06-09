@@ -78,21 +78,25 @@ def main() -> None:
     for year in sorted({p["draft_year"] for p in players}):
         cls = [p for p in players if p["draft_year"] == year]
         cls.sort(key=lambda p: (keep_score(p), p["gp"] or 0), reverse=True)
-        # Injury shield: a first-rounder from the newest class who hasn't
-        # played yet (e.g. redshirted/injured) keeps his slot — there's no
-        # production to judge him on.
+        # Forced keeps: top-10 picks are always in — a redraft needs its busts
+        # so you can see where they SHOULD have gone. Plus the injury shield:
+        # a first-rounder from the newest class who hasn't played yet.
         forced = [
             p
             for p in cls
-            if year == CURRENT_CYCLE - 1
-            and p["overall_pick"] <= 30
-            and not p["gp"]
+            if p["overall_pick"] <= 10
+            or (
+                year == CURRENT_CYCLE - 1
+                and p["overall_pick"] <= 30
+                and not p["gp"]
+            )
         ]
         rest = [p for p in cls if p not in forced]
         keep = forced + rest[: KEEP - len(forced)]
         cut = rest[KEEP - len(forced) :]
         for p in forced:
-            print(f"  SHIELD       #{p['overall_pick']}  {p['name']} (injured, no games)")
+            why = "top-10 pick" if p["overall_pick"] <= 10 else "injured, no games"
+            print(f"  SHIELD       #{p['overall_pick']}  {p['name']} ({why})")
         cut_ids += [p["id"] for p in cut]
         print(f"\n=== {year}: keep {len(keep)}, cut {len(cut)} ===")
         for p in keep[:5]:
