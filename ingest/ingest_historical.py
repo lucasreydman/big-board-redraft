@@ -17,6 +17,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import math
 import re
 import sys
 import time
@@ -48,27 +49,45 @@ def fetch_draft_history(year: int):
 
 def fill_nba_stats(person_id: int) -> dict:
     """Best-effort SPG/BPG/TS% from nba_api career totals."""
+    import json
+
     from nba_api.stats.endpoints import playercareerstats
 
     try:
-        frames = playercareerstats.PlayerCareerStats(
-            player_id=person_id
-        ).get_data_frames()
-        career = frames[1]  # CareerTotalsRegularSeason
-        if career.empty:
+        # Parse the JSON ourselves: get_data_frames() chokes on the newer
+        # SeasonHighs/CareerHighs result sets (KeyError: 'resultSet'), and raw
+        # JSON gives plain Python numbers instead of numpy scalars anyway.
+        raw = json.loads(
+            playercareerstats.PlayerCareerStats(player_id=person_id).get_json()
+        )
+        rs = next(
+            (
+                s
+                for s in raw.get("resultSets", [])
+                if s.get("name") == "CareerTotalsRegularSeason"
+            ),
+            None,
+        )
+        if not rs or not rs.get("rowSet"):
             return {}
-        r = career.iloc[0]
-        gp = r.get("GP") or 0
+        r = dict(zip(rs["headers"], rs["rowSet"][0]))
+        gp = float(r.get("GP") or 0)
         out: dict = {}
-        if gp:
-            out["spg"] = round(float(r.get("STL", 0)) / gp, 2)
-            out["bpg"] = round(float(r.get("BLK", 0)) / gp, 2)
-        fga = float(r.get("FGA", 0))
-        fta = float(r.get("FTA", 0))
-        pts = float(r.get("PTS", 0))
+        if gp and math.isfinite(gp):
+            spg = float(r.get("STL") or 0) / gp
+            bpg = float(r.get("BLK") or 0) / gp
+            if math.isfinite(spg):
+                out["spg"] = round(spg, 2)
+            if math.isfinite(bpg):
+                out["bpg"] = round(bpg, 2)
+        fga = float(r.get("FGA") or 0)
+        fta = float(r.get("FTA") or 0)
+        pts = float(r.get("PTS") or 0)
         denom = 2 * (fga + 0.44 * fta)
-        if denom > 0:
-            out["ts_pct"] = round(pts / denom, 3)
+        if denom > 0 and math.isfinite(denom):
+            ts = pts / denom
+            if math.isfinite(ts):
+                out["ts_pct"] = round(ts, 3)
         return out
     except Exception as exc:  # noqa: BLE001 — best effort only
         print(f"    [nba_api] career stats failed for {person_id}: {exc}")
@@ -171,6 +190,13 @@ def ingest_year(year: int, *, fill_nba: bool, force_bbref: bool) -> None:
             if person_id:
                 rec.update(fill_nba_stats(person_id))
                 time.sleep(0.6)
+
+    # PostgREST bulk upserts reject mixed-shape rows (PGRST102: "All object
+    # keys must match"), and the nba_api fill only adds keys where it succeeds.
+    all_keys = {k for rec in stat_rows for k in rec}
+    for rec in stat_rows:
+        for k in all_keys:
+            rec.setdefault(k, None)
 
     sb.upsert("career_stats", stat_rows, on_conflict="player_id")
     print(f"  [supabase] upserted {len(stat_rows)} career_stats rows")
