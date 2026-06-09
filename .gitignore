@@ -36,3 +36,6 @@ ingest/**/__pycache__/
 *.pyc
 ingest/data/cache/
 ingest/data/headshots/
+
+.supabase-db-password.txt
+.vercel
