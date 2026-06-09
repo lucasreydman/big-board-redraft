@@ -37,16 +37,16 @@ export interface StatColumn {
 // The redraft table stat columns, in display order. Headline stats stay
 // visible on small screens; the long tail appears at md/lg.
 export const REDRAFT_STAT_COLUMNS: StatColumn[] = [
-  { key: "gp", label: "GP", decimals: 0, cellClass: "hidden lg:table-cell" },
+  { key: "gp", label: "GP", decimals: 0, cellClass: "hidden lg:inline-flex" },
   { key: "ppg", label: "PPG", decimals: 1 },
   { key: "rpg", label: "RPG", decimals: 1 },
   { key: "apg", label: "APG", decimals: 1 },
-  { key: "fgPct", label: "FG%", pct: true, cellClass: "hidden lg:table-cell" },
-  { key: "fg3Pct", label: "3P%", pct: true, cellClass: "hidden lg:table-cell" },
-  { key: "ftPct", label: "FT%", pct: true, cellClass: "hidden xl:table-cell" },
-  { key: "tsPct", label: "TS%", pct: true, cellClass: "hidden md:table-cell" },
+  { key: "fgPct", label: "FG%", pct: true, cellClass: "hidden lg:inline-flex" },
+  { key: "fg3Pct", label: "3P%", pct: true, cellClass: "hidden lg:inline-flex" },
+  { key: "ftPct", label: "FT%", pct: true, cellClass: "hidden xl:inline-flex" },
+  { key: "tsPct", label: "TS%", pct: true, cellClass: "hidden md:inline-flex" },
   { key: "ws", label: "WS", decimals: 1 },
-  { key: "bpm", label: "BPM", decimals: 1, cellClass: "hidden md:table-cell" },
+  { key: "bpm", label: "BPM", decimals: 1, cellClass: "hidden md:inline-flex" },
   { key: "vorp", label: "VORP", decimals: 1 },
 ];
 

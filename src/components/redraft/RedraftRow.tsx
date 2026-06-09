@@ -14,16 +14,17 @@ import {
 } from "lucide-react";
 import { Headshot } from "@/components/Headshot";
 import { DeltaBadge } from "@/components/DeltaBadge";
-import { teamAbbr, teamColor } from "@/lib/teamColors";
+import { teamColor } from "@/lib/teamColors";
 import { REDRAFT_STAT_COLUMNS, UDFA_PICK, type StatKey } from "@/lib/constants";
 import { fmtInt, fmtNum, fmtPct, pickDelta } from "@/lib/format";
 import { heatClass, type HeatLevel } from "@/lib/heat";
 import type { Player } from "@/lib/types";
 
+// One sortable player row. The slot number + franchise logo live in the
+// static rail beside this list — only the player content moves.
 export function RedraftRow({
   player,
   slot,
-  slotTeam,
   total,
   draggable,
   heat,
@@ -32,8 +33,6 @@ export function RedraftRow({
 }: {
   player: Player;
   slot: number;
-  /** The franchise that actually owned this slot's pick on draft night. */
-  slotTeam: string | null;
   total: number;
   draggable: boolean;
   heat: (key: StatKey, value: number | null) => HeatLevel;
@@ -51,76 +50,47 @@ export function RedraftRow({
   } = useSortable({ id: player.id, disabled: !draggable });
 
   const isUdfa = player.overallPick >= UDFA_PICK;
-  const playerAccent = teamColor(player.team);
-  const slotAccent = teamColor(slotTeam);
-  const slotAbbr = teamAbbr(slotTeam);
+  const accent = teamColor(player.team);
 
   return (
-    <tr
+    <div
       ref={setNodeRef}
       style={{
         transform: CSS.Transform.toString(transform),
         transition,
-        boxShadow: `inset 3px 0 0 0 ${slotTeam ? slotAccent : "transparent"}`,
+        boxShadow: `inset 3px 0 0 0 ${accent}`,
       }}
       className={[
-        "border-border/70 group border-b",
+        "border-border/70 group flex h-14 items-center border-b",
         isDragging
           ? "bg-surface-3 relative z-10 opacity-50"
           : "hover:bg-surface-2/70 transition-colors duration-150",
       ].join(" ")}
     >
       {/* drag handle */}
-      <td className="w-8 pl-1.5">
-        <button
-          ref={setActivatorNodeRef}
-          {...attributes}
-          {...listeners}
-          aria-label={`Drag ${player.name}`}
-          disabled={!draggable}
-          className="text-ink-faint hover:text-ink cursor-grab touch-none rounded p-1 transition-colors active:cursor-grabbing disabled:cursor-default disabled:opacity-20"
-        >
-          <GripVertical className="h-4 w-4" />
-        </button>
-      </td>
-
-      {/* slot + the team that owned this pick (anchored to the slot, not the player) */}
-      <td className="w-10 py-1.5 pr-1 text-right">
-        <span
-          className={[
-            "display text-xl font-bold leading-none",
-            slot <= 14 ? "text-accent" : "text-ink-muted",
-          ].join(" ")}
-        >
-          {slot}
-        </span>
-      </td>
-      <td className="w-12 py-1.5 pl-2">
-        {slotAbbr ? (
-          <span
-            className="tnum rounded px-1.5 py-0.5 text-[11px] font-bold"
-            style={{ color: slotAccent, background: `${slotAccent}1a` }}
-            title={slotTeam ?? undefined}
-          >
-            {slotAbbr}
-          </span>
-        ) : (
-          <span className="text-ink-faint text-[11px]">—</span>
-        )}
-      </td>
+      <button
+        ref={setActivatorNodeRef}
+        {...attributes}
+        {...listeners}
+        aria-label={`Drag ${player.name}`}
+        disabled={!draggable}
+        className="text-ink-faint hover:text-ink ml-1 cursor-grab touch-none rounded p-1 transition-colors active:cursor-grabbing disabled:cursor-default disabled:opacity-20"
+      >
+        <GripVertical className="h-4 w-4" />
+      </button>
 
       {/* headshot */}
-      <td className="w-[54px] py-1.5 pl-1">
+      <div className="pl-1">
         <Headshot
           src={player.headshotUrl}
           alt={player.name}
           size={44}
-          accent={playerAccent}
+          accent={accent}
         />
-      </td>
+      </div>
 
       {/* name + actual pick + delta */}
-      <td className="min-w-[210px] py-1.5 pl-2.5 pr-2">
+      <div className="min-w-[190px] flex-1 pl-2.5 pr-2">
         <div className="flex items-center gap-2">
           <button
             onClick={onOpen}
@@ -140,7 +110,7 @@ export function RedraftRow({
           {!isUdfa && (
             <span
               className="tnum shrink-0 font-semibold"
-              style={{ color: playerAccent }}
+              style={{ color: accent }}
             >
               #{player.overallPick}
             </span>
@@ -149,34 +119,36 @@ export function RedraftRow({
             {[player.college, player.team].filter(Boolean).join(" · ") || "—"}
           </span>
         </div>
-      </td>
+      </div>
 
       {/* stat columns */}
-      {REDRAFT_STAT_COLUMNS.map((col) => {
-        const v = player.stats[col.key as keyof Player["stats"]] as
-          | number
-          | null;
-        const text = col.pct
-          ? fmtPct(v)
-          : col.decimals === 0
-            ? fmtInt(v)
-            : fmtNum(v, col.decimals ?? 1);
-        return (
-          <td
-            key={col.key}
-            className={[
-              "tnum px-2 py-1.5 text-right text-sm",
-              col.cellClass ?? "",
-              v === null ? "text-ink-faint/60" : heatClass(heat(col.key, v)),
-            ].join(" ")}
-          >
-            {text}
-          </td>
-        );
-      })}
+      <div className="flex items-center">
+        {REDRAFT_STAT_COLUMNS.map((col) => {
+          const v = player.stats[col.key as keyof Player["stats"]] as
+            | number
+            | null;
+          const text = col.pct
+            ? fmtPct(v)
+            : col.decimals === 0
+              ? fmtInt(v)
+              : fmtNum(v, col.decimals ?? 1);
+          return (
+            <span
+              key={col.key}
+              className={[
+                "tnum w-14 justify-end px-1 text-right text-sm",
+                col.cellClass ?? "inline-flex",
+                v === null ? "text-ink-faint/60" : heatClass(heat(col.key, v)),
+              ].join(" ")}
+            >
+              {text}
+            </span>
+          );
+        })}
+      </div>
 
       {/* row actions */}
-      <td className="w-9 pr-1.5 text-right">
+      <div className="w-8 pr-1 text-right">
         <RowMenu
           name={player.name}
           slot={slot}
@@ -185,8 +157,8 @@ export function RedraftRow({
           onOpen={onOpen}
           onMoveTo={onMoveTo}
         />
-      </td>
-    </tr>
+      </div>
+    </div>
   );
 }
 

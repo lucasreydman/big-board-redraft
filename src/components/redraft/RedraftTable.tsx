@@ -22,6 +22,8 @@ import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { toast } from "sonner";
 import {
   Check,
+  ChevronDown,
+  ChevronUp,
   Download,
   ImageDown,
   RotateCcw,
@@ -30,7 +32,7 @@ import {
 } from "lucide-react";
 import { RedraftRow } from "./RedraftRow";
 import { PlayerDrawer } from "./PlayerDrawer";
-import { StatHeader } from "@/components/StatHeader";
+import { TeamLogo } from "./TeamLogo";
 import { SaveIndicator } from "@/components/SaveIndicator";
 import { Headshot } from "@/components/Headshot";
 import { useAutoSave } from "@/hooks/useAutoSave";
@@ -38,6 +40,7 @@ import { createClient } from "@/lib/supabase/client";
 import { sortPlayerIds, type SortDir } from "@/lib/sort";
 import { buildHeat } from "@/lib/heat";
 import { teamColor } from "@/lib/teamColors";
+import { DRAFT_ORDER } from "@/lib/draftOrder";
 import { REDRAFT_STAT_COLUMNS, UDFA_PICK, type StatKey } from "@/lib/constants";
 import { pickDelta } from "@/lib/format";
 import { exportCsv, exportPng } from "@/lib/export";
@@ -73,8 +76,8 @@ export function RedraftTable({
   );
 
   // Reconcile the saved order with the current player pool: drop ids that no
-  // longer exist (purged players) and append newly ingested ones (UDFAs) at
-  // the bottom in actual-pick order.
+  // longer exist (trimmed players) and append newly ingested ones at the
+  // bottom in actual-pick order.
   const [order, setOrder] = useState<string[]>(() => {
     const kept = initialOrder.filter((id) => byId.has(id));
     const seen = new Set(kept);
@@ -82,15 +85,12 @@ export function RedraftTable({
     return [...kept, ...added];
   });
 
-  // Which franchise owned each pick slot on draft night — anchored to the
-  // slot so reordering shows who would end up with whom.
-  const slotTeams = useMemo(() => {
-    const m = new Map<number, string>();
-    for (const p of players) {
-      if (p.overallPick < UDFA_PICK && p.team) m.set(p.overallPick, p.team);
-    }
-    return m;
-  }, [players]);
+  // The franchise that owned each first-round slot on draft night — static,
+  // from the generated draft-order map (independent of which players survive
+  // the trim).
+  const slotTeam = (slot: number): string | null =>
+    DRAFT_ORDER[year]?.[slot] ?? null;
+
   const [sortKey, setSortKey] = useState<StatKey | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [search, setSearch] = useState("");
@@ -254,7 +254,7 @@ export function RedraftTable({
       const udfa = p.overallPick >= UDFA_PICK;
       return [
         slot,
-        slotTeams.get(slot) ?? "",
+        slotTeam(slot) ?? "",
         p.name,
         udfa ? "UDFA" : p.overallPick,
         udfa ? "" : pickDelta(p.overallPick, slot),
@@ -346,7 +346,7 @@ export function RedraftTable({
         )}
       </div>
 
-      {/* table */}
+      {/* board: static slot/logo rail + sortable player rows */}
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
@@ -360,59 +360,102 @@ export function RedraftTable({
           className="border-border bg-surface overflow-auto rounded-xl border"
           style={{ maxHeight: "calc(100vh - 230px)", minHeight: 360 }}
         >
-          <table className="w-full border-collapse">
-            <thead className="bg-surface-2 sticky top-0 z-20">
-              <tr className="text-ink-faint text-left shadow-[inset_0_-1px_0_0_var(--color-border)]">
-                <th className="w-8" />
-                <th className="w-10 px-1 py-2 text-right font-mono text-[11px] uppercase">
+          <div className="min-w-[860px]">
+            {/* header strip */}
+            <div className="bg-surface-2 sticky top-0 z-20 flex shadow-[inset_0_-1px_0_0_var(--color-border)]">
+              <div className="bg-surface-2 sticky left-0 z-10 flex w-[88px] shrink-0 items-center justify-end pr-3">
+                <span className="text-ink-faint font-mono text-[11px] uppercase">
                   Pick
-                </th>
-                <th className="w-12 px-2 py-2 text-left font-mono text-[11px] uppercase">
-                  Team
-                </th>
-                <th className="w-[54px]" />
-                <th className="px-2.5 py-2 font-mono text-[11px] uppercase">
+                </span>
+              </div>
+              <div className="flex flex-1 items-center py-2">
+                <span className="w-7" />
+                <span className="text-ink-faint flex-1 pl-[58px] font-mono text-[11px] uppercase">
                   Player
-                </th>
-                {REDRAFT_STAT_COLUMNS.map((col) => (
-                  <StatHeader
-                    key={col.key}
-                    label={col.label}
-                    active={sortKey === col.key}
-                    dir={sortDir}
-                    onClick={() => handleSort(col.key)}
-                    className={col.cellClass ?? ""}
-                  />
-                ))}
-                <th className="w-10" />
-              </tr>
-            </thead>
-            <tbody>
-              <SortableContext
-                items={visibleIds}
-                strategy={verticalListSortingStrategy}
-              >
+                </span>
+                <span className="flex items-center">
+                  {REDRAFT_STAT_COLUMNS.map((col) => (
+                    <span
+                      key={col.key}
+                      className={`w-14 justify-end px-1 text-right ${col.cellClass ?? "inline-flex"}`}
+                    >
+                      <button
+                        onClick={() => handleSort(col.key)}
+                        aria-label={`Sort by ${col.label}`}
+                        className={[
+                          "hover:text-ink inline-flex cursor-pointer items-center font-mono text-[11px] uppercase tracking-wide transition-colors",
+                          sortKey === col.key
+                            ? "text-accent"
+                            : "text-ink-faint",
+                        ].join(" ")}
+                      >
+                        {col.label}
+                        {sortKey === col.key &&
+                          (sortDir === "desc" ? (
+                            <ChevronDown className="h-3 w-3" strokeWidth={3} />
+                          ) : (
+                            <ChevronUp className="h-3 w-3" strokeWidth={3} />
+                          ))}
+                      </button>
+                    </span>
+                  ))}
+                </span>
+                <span className="w-8" />
+              </div>
+            </div>
+
+            {/* body */}
+            <div className="flex">
+              {/* static rail — never part of the drag */}
+              <div className="bg-surface sticky left-0 z-10 w-[88px] shrink-0">
                 {visibleIds.map((id) => {
-                  const p = byId.get(id);
-                  if (!p) return null;
                   const slot = slotOf.get(id) ?? 0;
+                  const team = slotTeam(slot);
                   return (
-                    <RedraftRow
-                      key={id}
-                      player={p}
-                      slot={slot}
-                      slotTeam={slotTeams.get(slot) ?? null}
-                      total={displayIds.length}
-                      draggable={draggable}
-                      heat={heat}
-                      onOpen={() => setOpen(p)}
-                      onMoveTo={(s) => moveTo(id, s)}
-                    />
+                    <div
+                      key={`rail-${id}`}
+                      className="border-border/70 flex h-14 items-center justify-end gap-2 border-b pr-3"
+                    >
+                      <span
+                        className={[
+                          "display text-xl font-bold leading-none",
+                          slot <= 14 ? "text-accent" : "text-ink-muted",
+                        ].join(" ")}
+                      >
+                        {slot}
+                      </span>
+                      <TeamLogo team={team} size={26} />
+                    </div>
                   );
                 })}
-              </SortableContext>
-            </tbody>
-          </table>
+              </div>
+
+              {/* sortable player rows */}
+              <div className="min-w-0 flex-1">
+                <SortableContext
+                  items={visibleIds}
+                  strategy={verticalListSortingStrategy}
+                >
+                  {visibleIds.map((id) => {
+                    const p = byId.get(id);
+                    if (!p) return null;
+                    return (
+                      <RedraftRow
+                        key={id}
+                        player={p}
+                        slot={slotOf.get(id) ?? 0}
+                        total={displayIds.length}
+                        draggable={draggable}
+                        heat={heat}
+                        onOpen={() => setOpen(p)}
+                        onMoveTo={(s) => moveTo(id, s)}
+                      />
+                    );
+                  })}
+                </SortableContext>
+              </div>
+            </div>
+          </div>
         </div>
 
         <DragOverlay>
@@ -426,7 +469,7 @@ export function RedraftTable({
               <Headshot
                 src={activePlayer.headshotUrl}
                 alt={activePlayer.name}
-                size={44}
+                size={40}
                 accent={teamColor(activePlayer.team)}
               />
               <span className="display text-ink text-lg font-bold">

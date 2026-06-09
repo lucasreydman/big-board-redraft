@@ -85,6 +85,49 @@ export function teamAbbr(team: string | null | undefined): string | null {
   return null;
 }
 
+const NICKNAME_NBA_ID: Record<string, number> = {
+  Hawks: 1610612737,
+  Celtics: 1610612738,
+  Nets: 1610612751,
+  Hornets: 1610612766,
+  Bulls: 1610612741,
+  Cavaliers: 1610612739,
+  Mavericks: 1610612742,
+  Nuggets: 1610612743,
+  Pistons: 1610612765,
+  Warriors: 1610612744,
+  Rockets: 1610612745,
+  Pacers: 1610612754,
+  Clippers: 1610612746,
+  Lakers: 1610612747,
+  Grizzlies: 1610612763,
+  Heat: 1610612748,
+  Bucks: 1610612749,
+  Timberwolves: 1610612750,
+  Pelicans: 1610612740,
+  Knicks: 1610612752,
+  Thunder: 1610612760,
+  Magic: 1610612753,
+  "76ers": 1610612755,
+  Suns: 1610612756,
+  "Trail Blazers": 1610612757,
+  Kings: 1610612758,
+  Spurs: 1610612759,
+  Raptors: 1610612761,
+  Jazz: 1610612762,
+  Wizards: 1610612764,
+};
+
+/** Official NBA logo URL for a team name like "Dallas Mavericks". */
+export function teamLogoUrl(team: string | null | undefined): string | null {
+  if (!team) return null;
+  for (const [nickname, id] of Object.entries(NICKNAME_NBA_ID)) {
+    if (team.endsWith(nickname))
+      return `https://cdn.nba.com/logos/nba/${id}/global/L/logo.svg`;
+  }
+  return null;
+}
+
 /** Accent color per prospect position group. */
 export function positionColor(position: string | null | undefined): string {
   if (!position) return "#5d6675";
