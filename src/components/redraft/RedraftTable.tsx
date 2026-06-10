@@ -28,7 +28,9 @@ import {
   ImageDown,
   PanelLeftClose,
   PanelLeftOpen,
+  Plus,
   RotateCcw,
+  Scissors,
   Search,
   X,
 } from "lucide-react";
@@ -57,10 +59,12 @@ export function RedraftTable({
   year,
   players,
   initialOrder,
+  initialCuts = [],
 }: {
   year: number;
   players: Player[];
   initialOrder: string[];
+  initialCuts?: string[];
 }) {
   const byId = useMemo(
     () => new Map(players.map((p) => [p.id, p])),
@@ -84,11 +88,17 @@ export function RedraftTable({
 
   // Reconcile the saved order with the current player pool: drop ids that no
   // longer exist (trimmed players) and append newly ingested ones at the
-  // bottom in actual-pick order.
+  // bottom in actual-pick order. Cut players sit in a separate pile.
+  const [cuts, setCuts] = useState<string[]>(() =>
+    initialCuts.filter((id) => byId.has(id)),
+  );
   const [order, setOrder] = useState<string[]>(() => {
-    const kept = initialOrder.filter((id) => byId.has(id));
+    const cutSet = new Set(initialCuts);
+    const kept = initialOrder.filter((id) => byId.has(id) && !cutSet.has(id));
     const seen = new Set(kept);
-    const added = actualOrder.filter((id) => !seen.has(id));
+    const added = actualOrder.filter(
+      (id) => !seen.has(id) && !cutSet.has(id),
+    );
     return [...kept, ...added];
   });
 
@@ -108,7 +118,9 @@ export function RedraftTable({
 
   const orderRef = useRef(order);
   orderRef.current = order;
-  const historyRef = useRef<string[][]>([]);
+  const cutsRef = useRef(cuts);
+  cutsRef.current = cuts;
+  const historyRef = useRef<{ order: string[]; cuts: string[] }[]>([]);
   const tableRef = useRef<HTMLDivElement>(null);
 
   const supabase = useMemo(() => createClient(), []);
@@ -122,6 +134,7 @@ export function RedraftTable({
         user_id: user.id,
         draft_year: year,
         ordered_player_ids: orderRef.current,
+        cut_player_ids: cutsRef.current,
       },
       { onConflict: "user_id,draft_year" },
     );
@@ -166,13 +179,20 @@ export function RedraftTable({
     }),
   );
 
-  /** Commit a new order: history for undo, persist, toast. */
-  function commit(next: string[], message?: string) {
-    historyRef.current.push(orderRef.current);
+  /** Commit a new order (and optionally cut pile): undo history, persist, toast. */
+  function commit(next: string[], message?: string, nextCuts?: string[]) {
+    historyRef.current.push({
+      order: orderRef.current,
+      cuts: cutsRef.current,
+    });
     if (historyRef.current.length > 50) historyRef.current.shift();
     setSortKey(null);
     setOrder(next);
     orderRef.current = next;
+    if (nextCuts) {
+      setCuts(nextCuts);
+      cutsRef.current = nextCuts;
+    }
     trigger();
     if (message) {
       toast(message, {
@@ -186,9 +206,39 @@ export function RedraftTable({
     const prev = historyRef.current.pop();
     if (!prev) return;
     setSortKey(null);
-    setOrder(prev);
-    orderRef.current = prev;
+    setOrder(prev.order);
+    setCuts(prev.cuts);
+    orderRef.current = prev.order;
+    cutsRef.current = prev.cuts;
     trigger();
+  }
+
+  function cutPlayer(id: string) {
+    const p = byId.get(id);
+    commit(
+      order.filter((x) => x !== id),
+      p ? `${p.name} cut from board` : undefined,
+      [...cuts, id],
+    );
+  }
+
+  function restorePlayer(id: string) {
+    const p = byId.get(id);
+    commit(
+      [...order, id],
+      p ? `${p.name} back at #${order.length + 1}` : undefined,
+      cuts.filter((x) => x !== id),
+    );
+  }
+
+  function keepTop(n: number) {
+    if (displayIds.length <= n) return;
+    const dropped = displayIds.slice(n);
+    commit(
+      displayIds.slice(0, n),
+      `Cut ${dropped.length} players — first round only`,
+      [...cuts, ...dropped],
+    );
   }
 
   function handleDragStart(event: DragStartEvent) {
@@ -243,7 +293,7 @@ export function RedraftTable({
   }
 
   function resetToActual() {
-    commit(actualOrder, "Reset to actual draft order");
+    commit(actualOrder, "Reset to actual draft order", []);
   }
 
   function handleCsv() {
@@ -299,6 +349,14 @@ export function RedraftTable({
           <SaveIndicator state={state} />
         </div>
         <div className="flex items-center gap-2">
+          {displayIds.length > 30 && (
+            <ToolButton
+              onClick={() => keepTop(30)}
+              icon={<Scissors className="h-3.5 w-3.5" />}
+            >
+              Top 30 only
+            </ToolButton>
+          )}
           <ToolButton onClick={resetToActual} icon={<RotateCcw className="h-3.5 w-3.5" />}>
             Reset
           </ToolButton>
@@ -517,6 +575,7 @@ export function RedraftTable({
                         heat={heat}
                         onOpen={() => setOpen(p)}
                         onMoveTo={(s) => moveTo(id, s)}
+                        onCut={() => cutPlayer(id)}
                       />
                     );
                   })}
@@ -547,6 +606,38 @@ export function RedraftTable({
           )}
         </DragOverlay>
       </DndContext>
+
+      {/* cut pile */}
+      {cuts.length > 0 && (
+        <div className="border-border bg-surface/50 rounded-xl border p-4">
+          <div className="display text-ink-muted mb-3 text-sm font-semibold tracking-wide">
+            Cut from board ({cuts.length})
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {cuts.map((id) => {
+              const p = byId.get(id);
+              if (!p) return null;
+              return (
+                <button
+                  key={id}
+                  onClick={() => restorePlayer(id)}
+                  title={`Add ${p.name} back to the board`}
+                  className="border-border hover:border-accent bg-surface-2 flex cursor-pointer items-center gap-2.5 rounded-full border py-1.5 pl-1.5 pr-3.5 text-sm transition-colors duration-150"
+                >
+                  <Headshot
+                    src={p.headshotUrl}
+                    alt={p.name}
+                    size={28}
+                    accent={teamColor(p.team)}
+                  />
+                  <span className="text-ink-muted">{p.name}</span>
+                  <Plus className="text-accent h-3.5 w-3.5" strokeWidth={3} />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       <PlayerDrawer
         player={open}

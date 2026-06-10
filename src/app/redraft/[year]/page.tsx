@@ -22,26 +22,29 @@ export default async function RedraftYearPage({
     notFound();
   }
 
-  const [players, savedOrder, email] = await Promise.all([
+  const [players, saved, email] = await Promise.all([
     getPlayersByYear(year),
     getRedraftOrder(year),
     getCurrentUserEmail(),
   ]);
 
-  // Start from the saved order if present; append any players missing from it
-  // (e.g. if the class was re-ingested) so nobody gets dropped. Otherwise use
-  // the actual draft order.
+  // Start from the saved order if present; append any players missing from
+  // both the order and the cut pile (e.g. if the class was re-ingested) so
+  // nobody gets dropped. Otherwise use the actual draft order.
   const actualOrder = players.map((p) => p.id);
+  const known = new Set(actualOrder);
+  const initialCuts = (saved?.cuts ?? []).filter((id) => known.has(id));
   let initialOrder: string[];
-  if (savedOrder && savedOrder.length) {
-    const known = new Set(actualOrder);
+  if (saved && saved.order.length) {
+    const cutSet = new Set(initialCuts);
     const seen = new Set<string>();
-    initialOrder = savedOrder.filter((id) => {
-      if (!known.has(id) || seen.has(id)) return false;
+    initialOrder = saved.order.filter((id) => {
+      if (!known.has(id) || seen.has(id) || cutSet.has(id)) return false;
       seen.add(id);
       return true;
     });
-    for (const id of actualOrder) if (!seen.has(id)) initialOrder.push(id);
+    for (const id of actualOrder)
+      if (!seen.has(id) && !cutSet.has(id)) initialOrder.push(id);
   } else {
     initialOrder = actualOrder;
   }
@@ -57,6 +60,7 @@ export default async function RedraftYearPage({
             year={year}
             players={players}
             initialOrder={initialOrder}
+            initialCuts={initialCuts}
           />
         )}
       </main>

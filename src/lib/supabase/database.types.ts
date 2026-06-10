@@ -98,12 +98,14 @@ export interface Database {
           user_id: string;
           draft_year: number;
           ordered_player_ids: string[];
+          cut_player_ids: string[];
           updated_at: string;
         };
         Insert: {
           user_id: string;
           draft_year: number;
           ordered_player_ids: string[];
+          cut_player_ids?: string[];
         };
         Update: Partial<Database["public"]["Tables"]["redrafts"]["Row"]>;
         Relationships: [];

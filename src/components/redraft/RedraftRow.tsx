@@ -10,6 +10,7 @@ import {
   GripVertical,
   Info,
   MoreVertical,
+  Scissors,
   SendHorizontal,
 } from "lucide-react";
 import { Headshot } from "@/components/Headshot";
@@ -35,6 +36,7 @@ export function RedraftRow({
   heat,
   onOpen,
   onMoveTo,
+  onCut,
 }: {
   player: Player;
   slot: number;
@@ -43,6 +45,7 @@ export function RedraftRow({
   heat: (key: StatKey, value: number | null) => HeatLevel;
   onOpen: () => void;
   onMoveTo: (slot: number) => void;
+  onCut: () => void;
 }) {
   const {
     attributes,
@@ -169,6 +172,7 @@ export function RedraftRow({
           enabled={draggable}
           onOpen={onOpen}
           onMoveTo={onMoveTo}
+          onCut={onCut}
         />
       </div>
     </div>
@@ -182,6 +186,7 @@ function RowMenu({
   enabled,
   onOpen,
   onMoveTo,
+  onCut,
 }: {
   name: string;
   slot: number;
@@ -189,6 +194,7 @@ function RowMenu({
   enabled: boolean;
   onOpen: () => void;
   onMoveTo: (slot: number) => void;
+  onCut: () => void;
 }) {
   const [target, setTarget] = useState("");
 
@@ -227,6 +233,9 @@ function RowMenu({
                 disabled={slot === total}
               >
                 <ArrowDownToLine className="h-3.5 w-3.5" /> Move to bottom
+              </MenuItem>
+              <MenuItem onSelect={onCut}>
+                <Scissors className="h-3.5 w-3.5" /> Cut from board
               </MenuItem>
               <div
                 className="border-border mt-1 flex items-center gap-1.5 border-t p-2"

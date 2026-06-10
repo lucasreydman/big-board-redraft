@@ -85,8 +85,10 @@ export async function getPlayersByYear(year: number): Promise<Player[]> {
   );
 }
 
-// The signed-in user's saved redraft order for a year (player id list), or null.
-export async function getRedraftOrder(year: number): Promise<string[] | null> {
+// The signed-in user's saved redraft for a year: working order + cut pile.
+export async function getRedraftOrder(
+  year: number,
+): Promise<{ order: string[]; cuts: string[] } | null> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -95,12 +97,16 @@ export async function getRedraftOrder(year: number): Promise<string[] | null> {
 
   const { data } = await supabase
     .from("redrafts")
-    .select("ordered_player_ids")
+    .select("ordered_player_ids, cut_player_ids")
     .eq("user_id", user.id)
     .eq("draft_year", year)
     .maybeSingle();
 
-  return (data?.ordered_player_ids as string[] | undefined) ?? null;
+  if (!data) return null;
+  return {
+    order: (data.ordered_player_ids as string[]) ?? [],
+    cuts: (data.cut_player_ids as string[]) ?? [],
+  };
 }
 
 export async function getProspects(): Promise<Prospect[]> {
