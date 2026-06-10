@@ -1,6 +1,6 @@
-// Generated from nba_api DraftHistory - for each slot (picks 1-48) per
-// class: the franchise that owned the pick and who they actually took.
-// Used by the static draft-night rail.
+// Generated from nba_api DraftHistory + each player's first NBA season
+// team - the franchise that ACQUIRED the pick on draft night (post-trade,
+// e.g. DAL for Doncic) and who was taken there. Picks 1-48 per class.
 export interface OriginalPick {
   team: string;
   player: string;
@@ -65,7 +65,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1627734
     },
     "12": {
-      "team": "Utah Jazz",
+      "team": "Atlanta Hawks",
       "player": "Taurean Prince",
       "personId": 1627752
     },
@@ -105,7 +105,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1627736
     },
     "20": {
-      "team": "Indiana Pacers",
+      "team": "Brooklyn Nets",
       "player": "Caris LeVert",
       "personId": 1627747
     },
@@ -115,12 +115,12 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1627761
     },
     "22": {
-      "team": "Charlotte Hornets",
+      "team": "Sacramento Kings",
       "player": "Malachi Richardson",
       "personId": 1627781
     },
     "23": {
-      "team": "Boston Celtics",
+      "team": "Cleveland Cavaliers",
       "player": "Ante Zizic",
       "personId": 1627790
     },
@@ -160,7 +160,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1627745
     },
     "31": {
-      "team": "Boston Celtics",
+      "team": "Memphis Grizzlies",
       "player": "Deyonta Davis",
       "personId": 1627738
     },
@@ -170,7 +170,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1627826
     },
     "33": {
-      "team": "LA Clippers",
+      "team": "New Orleans Pelicans",
       "player": "Cheick Diallo",
       "personId": 1627767
     },
@@ -205,7 +205,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1627837
     },
     "40": {
-      "team": "New Orleans Pelicans",
+      "team": "LA Clippers",
       "player": "Diamond Stone",
       "personId": 1627754
     },
@@ -240,7 +240,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1627773
     },
     "47": {
-      "team": "Orlando Magic",
+      "team": "Portland Trail Blazers",
       "player": "Jake Layman",
       "personId": 1627774
     },
@@ -282,7 +282,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1628371
     },
     "7": {
-      "team": "Minnesota Timberwolves",
+      "team": "Chicago Bulls",
       "player": "Lauri Markkanen",
       "personId": 1628374
     },
@@ -297,7 +297,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1628372
     },
     "10": {
-      "team": "Sacramento Kings",
+      "team": "Portland Trail Blazers",
       "player": "Zach Collins",
       "personId": 1628380
     },
@@ -312,7 +312,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1628379
     },
     "13": {
-      "team": "Denver Nuggets",
+      "team": "Utah Jazz",
       "player": "Donovan Mitchell",
       "personId": 1628378
     },
@@ -322,12 +322,12 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1628389
     },
     "15": {
-      "team": "Portland Trail Blazers",
+      "team": "Sacramento Kings",
       "player": "Justin Jackson",
       "personId": 1628382
     },
     "16": {
-      "team": "Chicago Bulls",
+      "team": "Minnesota Timberwolves",
       "player": "Justin Patton",
       "personId": 1628383
     },
@@ -347,7 +347,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1628381
     },
     "20": {
-      "team": "Portland Trail Blazers",
+      "team": "Sacramento Kings",
       "player": "Harry Giles III",
       "personId": 1628385
     },
@@ -367,12 +367,12 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1628384
     },
     "24": {
-      "team": "Utah Jazz",
+      "team": "Denver Nuggets",
       "player": "Tyler Lydon",
       "personId": 1628399
     },
     "25": {
-      "team": "Orlando Magic",
+      "team": "Washington Wizards",
       "player": "An\u017eejs Pase\u010d\u0146iks",
       "personId": 1628394
     },
@@ -382,12 +382,12 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1628403
     },
     "27": {
-      "team": "Brooklyn Nets",
+      "team": "Los Angeles Lakers",
       "player": "Kyle Kuzma",
       "personId": 1628398
     },
     "28": {
-      "team": "Los Angeles Lakers",
+      "team": "Utah Jazz",
       "player": "Tony Bradley",
       "personId": 1628396
     },
@@ -397,12 +397,12 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1628401
     },
     "30": {
-      "team": "Utah Jazz",
+      "team": "Los Angeles Lakers",
       "player": "Josh Hart",
       "personId": 1628404
     },
     "31": {
-      "team": "Charlotte Hornets",
+      "team": "New Orleans Pelicans",
       "player": "Frank Jackson",
       "personId": 1628402
     },
@@ -422,7 +422,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1628412
     },
     "35": {
-      "team": "Orlando Magic",
+      "team": "Memphis Grizzlies",
       "player": "Ivan Rabb",
       "personId": 1628397
     },
@@ -437,17 +437,17 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1628400
     },
     "38": {
-      "team": "Chicago Bulls",
+      "team": "Golden State Warriors",
       "player": "Jordan Bell",
       "personId": 1628395
     },
     "39": {
-      "team": "Philadelphia 76ers",
+      "team": "LA Clippers",
       "player": "Jawun Evans",
       "personId": 1628393
     },
     "40": {
-      "team": "New Orleans Pelicans",
+      "team": "Charlotte Hornets",
       "player": "Dwayne Bacon",
       "personId": 1628407
     },
@@ -457,7 +457,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1628416
     },
     "42": {
-      "team": "Utah Jazz",
+      "team": "Los Angeles Lakers",
       "player": "Thomas Bryant",
       "personId": 1628418
     },
@@ -472,12 +472,12 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1628422
     },
     "45": {
-      "team": "Houston Rockets",
+      "team": "Memphis Grizzlies",
       "player": "Dillon Brooks",
       "personId": 1628415
     },
     "46": {
-      "team": "Philadelphia 76ers",
+      "team": "Milwaukee Bucks",
       "player": "Sterling Brown",
       "personId": 1628425
     },
@@ -487,7 +487,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1628387
     },
     "48": {
-      "team": "Milwaukee Bucks",
+      "team": "LA Clippers",
       "player": "Sindarius Thornwell",
       "personId": 1628414
     }
@@ -504,7 +504,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1628963
     },
     "3": {
-      "team": "Atlanta Hawks",
+      "team": "Dallas Mavericks",
       "player": "Luka Don\u010di\u0107",
       "personId": 1629029
     },
@@ -514,7 +514,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1628991
     },
     "5": {
-      "team": "Dallas Mavericks",
+      "team": "Atlanta Hawks",
       "player": "Trae Young",
       "personId": 1629027
     },
@@ -539,17 +539,17 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1628995
     },
     "10": {
-      "team": "Philadelphia 76ers",
+      "team": "Phoenix Suns",
       "player": "Mikal Bridges",
       "personId": 1628969
     },
     "11": {
-      "team": "Charlotte Hornets",
+      "team": "LA Clippers",
       "player": "Shai Gilgeous-Alexander",
       "personId": 1628983
     },
     "12": {
-      "team": "LA Clippers",
+      "team": "Charlotte Hornets",
       "player": "Miles Bridges",
       "personId": 1628970
     },
@@ -569,7 +569,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1628972
     },
     "16": {
-      "team": "Phoenix Suns",
+      "team": "Philadelphia 76ers",
       "player": "Zhaire Smith",
       "personId": 1629015
     },
@@ -659,7 +659,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1628973
     },
     "34": {
-      "team": "Atlanta Hawks",
+      "team": "Charlotte Hornets",
       "player": "Devonte' Graham",
       "personId": 1628984
     },
@@ -674,17 +674,17 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1629011
     },
     "37": {
-      "team": "Sacramento Kings",
+      "team": "Portland Trail Blazers",
       "player": "Gary Trent Jr.",
       "personId": 1629018
     },
     "38": {
-      "team": "Philadelphia 76ers",
+      "team": "Detroit Pistons",
       "player": "Khyri Thomas",
       "personId": 1629017
     },
     "39": {
-      "team": "Philadelphia 76ers",
+      "team": "Los Angeles Lakers",
       "player": "Isaac Bonga",
       "personId": 1629067
     },
@@ -694,7 +694,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1629066
     },
     "41": {
-      "team": "Orlando Magic",
+      "team": "Denver Nuggets",
       "player": "Jarred Vanderbilt",
       "personId": 1629020
     },
@@ -714,12 +714,12 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1629068
     },
     "45": {
-      "team": "Brooklyn Nets",
+      "team": "Oklahoma City Thunder",
       "player": "Hamidou Diallo",
       "personId": 1628977
     },
     "46": {
-      "team": "Houston Rockets",
+      "team": "Phoenix Suns",
       "player": "De'Anthony Melton",
       "personId": 1629001
     },
@@ -751,7 +751,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1629628
     },
     "4": {
-      "team": "Los Angeles Lakers",
+      "team": "Atlanta Hawks",
       "player": "De'Andre Hunter",
       "personId": 1629631
     },
@@ -761,7 +761,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1629636
     },
     "6": {
-      "team": "Phoenix Suns",
+      "team": "Minnesota Timberwolves",
       "player": "Jarrett Culver",
       "personId": 1629633
     },
@@ -771,7 +771,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1629632
     },
     "8": {
-      "team": "Atlanta Hawks",
+      "team": "New Orleans Pelicans",
       "player": "Jaxson Hayes",
       "personId": 1629637
     },
@@ -786,7 +786,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1629629
     },
     "11": {
-      "team": "Minnesota Timberwolves",
+      "team": "Phoenix Suns",
       "player": "Cameron Johnson",
       "personId": 1629661
     },
@@ -816,7 +816,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1629643
     },
     "17": {
-      "team": "Brooklyn Nets",
+      "team": "New Orleans Pelicans",
       "player": "Nickeil Alexander-Walker",
       "personId": 1629638
     },
@@ -831,12 +831,12 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1629677
     },
     "20": {
-      "team": "Boston Celtics",
+      "team": "Philadelphia 76ers",
       "player": "Matisse Thybulle",
       "personId": 1629680
     },
     "21": {
-      "team": "Oklahoma City Thunder",
+      "team": "Memphis Grizzlies",
       "player": "Brandon Clarke",
       "personId": 1629634
     },
@@ -846,12 +846,12 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1629684
     },
     "23": {
-      "team": "Utah Jazz",
+      "team": "Oklahoma City Thunder",
       "player": "Darius Bazley",
       "personId": 1629647
     },
     "24": {
-      "team": "Philadelphia 76ers",
+      "team": "Phoenix Suns",
       "player": "Ty Jerome",
       "personId": 1629660
     },
@@ -866,7 +866,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1629685
     },
     "27": {
-      "team": "Brooklyn Nets",
+      "team": "LA Clippers",
       "player": "Mfiondu Kabengele",
       "personId": 1629662
     },
@@ -881,7 +881,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1629640
     },
     "30": {
-      "team": "Milwaukee Bucks",
+      "team": "Cleveland Cavaliers",
       "player": "Kevin Porter Jr.",
       "personId": 1629645
     },
@@ -891,22 +891,22 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1629651
     },
     "32": {
-      "team": "Phoenix Suns",
+      "team": "Miami Heat",
       "player": "KZ Okpala",
       "personId": 1629644
     },
     "33": {
-      "team": "Philadelphia 76ers",
+      "team": "Boston Celtics",
       "player": "Carsen Edwards",
       "personId": 1629035
     },
     "34": {
-      "team": "Philadelphia 76ers",
+      "team": "Atlanta Hawks",
       "player": "Bruno Fernando",
       "personId": 1628981
     },
     "35": {
-      "team": "Atlanta Hawks",
+      "team": "New Orleans Pelicans",
       "player": "Didi Louzada",
       "personId": 1629712
     },
@@ -916,7 +916,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1628998
     },
     "37": {
-      "team": "Dallas Mavericks",
+      "team": "Detroit Pistons",
       "player": "Deividas Sirvydis",
       "personId": 1629686
     },
@@ -926,7 +926,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1629655
     },
     "39": {
-      "team": "New Orleans Pelicans",
+      "team": "Golden State Warriors",
       "player": "Alen Smailagic",
       "personId": 1629346
     },
@@ -941,7 +941,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1629672
     },
     "42": {
-      "team": "Philadelphia 76ers",
+      "team": "Washington Wizards",
       "player": "Admiral Schofield",
       "personId": 1629678
     },
@@ -951,22 +951,22 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1629669
     },
     "44": {
-      "team": "Miami Heat",
+      "team": "Denver Nuggets",
       "player": "Bol Bol",
       "personId": 1629626
     },
     "45": {
-      "team": "Detroit Pistons",
+      "team": "Oklahoma City Thunder",
       "player": "Isaiah Roby",
       "personId": 1629676
     },
     "46": {
-      "team": "Orlando Magic",
+      "team": "Los Angeles Lakers",
       "player": "Talen Horton-Tucker",
       "personId": 1629659
     },
     "47": {
-      "team": "Sacramento Kings",
+      "team": "New York Knicks",
       "player": "Ignas Brazdeikis",
       "personId": 1629649
     },
@@ -1053,12 +1053,12 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1630175
     },
     "16": {
-      "team": "Portland Trail Blazers",
+      "team": "Detroit Pistons",
       "player": "Isaiah Stewart",
       "personId": 1630191
     },
     "17": {
-      "team": "Minnesota Timberwolves",
+      "team": "Oklahoma City Thunder",
       "player": "Aleksej Pokusevski",
       "personId": 1630197
     },
@@ -1068,7 +1068,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1630182
     },
     "19": {
-      "team": "Brooklyn Nets",
+      "team": "Detroit Pistons",
       "player": "Saddiq Bey",
       "personId": 1630180
     },
@@ -1088,17 +1088,17 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1630192
     },
     "23": {
-      "team": "New York Knicks",
+      "team": "Minnesota Timberwolves",
       "player": "Leandro Bolmaro",
       "personId": 1630195
     },
     "24": {
-      "team": "Milwaukee Bucks",
+      "team": "Denver Nuggets",
       "player": "R.J. Hampton",
       "personId": 1630181
     },
     "25": {
-      "team": "Oklahoma City Thunder",
+      "team": "New York Knicks",
       "player": "Immanuel Quickley",
       "personId": 1630193
     },
@@ -1113,7 +1113,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1628962
     },
     "28": {
-      "team": "Los Angeles Lakers",
+      "team": "Minnesota Timberwolves",
       "player": "Jaden McDaniels",
       "personId": 1630183
     },
@@ -1123,7 +1123,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1630201
     },
     "30": {
-      "team": "Boston Celtics",
+      "team": "Memphis Grizzlies",
       "player": "Desmond Bane",
       "personId": 1630217
     },
@@ -1138,42 +1138,42 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1630176
     },
     "33": {
-      "team": "Minnesota Timberwolves",
+      "team": "LA Clippers",
       "player": "Daniel Oturu",
       "personId": 1630187
     },
     "34": {
-      "team": "Philadelphia 76ers",
+      "team": "Oklahoma City Thunder",
       "player": "Theo Maledon",
       "personId": 1630177
     },
     "35": {
-      "team": "Sacramento Kings",
+      "team": "Memphis Grizzlies",
       "player": "Xavier Tillman",
       "personId": 1630214
     },
     "36": {
-      "team": "Philadelphia 76ers",
+      "team": "Dallas Mavericks",
       "player": "Tyler Bey",
       "personId": 1630189
     },
     "37": {
-      "team": "Washington Wizards",
+      "team": "Oklahoma City Thunder",
       "player": "V\u00edt Krej\u010d\u00ed",
       "personId": 1630249
     },
     "38": {
-      "team": "Utah Jazz",
+      "team": "Detroit Pistons",
       "player": "Saben Lee",
       "personId": 1630240
     },
     "39": {
-      "team": "New Orleans Pelicans",
+      "team": "Utah Jazz",
       "player": "Elijah Hughes",
       "personId": 1630190
     },
     "40": {
-      "team": "Memphis Grizzlies",
+      "team": "Sacramento Kings",
       "player": "Robert Woodard II",
       "personId": 1630218
     },
@@ -1183,7 +1183,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1630200
     },
     "42": {
-      "team": "New Orleans Pelicans",
+      "team": "Charlotte Hornets",
       "player": "Nick Richards",
       "personId": 1630208
     },
@@ -1265,7 +1265,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1630558
     },
     "10": {
-      "team": "New Orleans Pelicans",
+      "team": "Memphis Grizzlies",
       "player": "Ziaire Williams",
       "personId": 1630533
     },
@@ -1295,12 +1295,12 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1630557
     },
     "16": {
-      "team": "Oklahoma City Thunder",
+      "team": "Houston Rockets",
       "player": "Alperen Sengun",
       "personId": 1630578
     },
     "17": {
-      "team": "Memphis Grizzlies",
+      "team": "New Orleans Pelicans",
       "player": "Trey Murphy III",
       "personId": 1630530
     },
@@ -1310,7 +1310,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1630544
     },
     "19": {
-      "team": "New York Knicks",
+      "team": "Charlotte Hornets",
       "player": "Kai Jones",
       "personId": 1630539
     },
@@ -1320,12 +1320,12 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1630552
     },
     "21": {
-      "team": "New York Knicks",
+      "team": "LA Clippers",
       "player": "Keon Johnson",
       "personId": 1630553
     },
     "22": {
-      "team": "Los Angeles Lakers",
+      "team": "Indiana Pacers",
       "player": "Isaiah Jackson",
       "personId": 1630543
     },
@@ -1340,7 +1340,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1630528
     },
     "25": {
-      "team": "LA Clippers",
+      "team": "New York Knicks",
       "player": "Quentin Grimes",
       "personId": 1629656
     },
@@ -1360,27 +1360,27 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1630531
     },
     "29": {
-      "team": "Phoenix Suns",
+      "team": "Brooklyn Nets",
       "player": "Day'Ron Sharpe",
       "personId": 1630549
     },
     "30": {
-      "team": "Utah Jazz",
+      "team": "Memphis Grizzlies",
       "player": "Santi Aldama",
       "personId": 1630583
     },
     "31": {
-      "team": "Milwaukee Bucks",
+      "team": "Washington Wizards",
       "player": "Isaiah Todd",
       "personId": 1630225
     },
     "32": {
-      "team": "New York Knicks",
+      "team": "Oklahoma City Thunder",
       "player": "Jeremiah Robinson-Earl",
       "personId": 1630526
     },
     "33": {
-      "team": "Orlando Magic",
+      "team": "LA Clippers",
       "player": "Jason Preston",
       "personId": 1630554
     },
@@ -1395,12 +1395,12 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1630529
     },
     "36": {
-      "team": "Oklahoma City Thunder",
+      "team": "New York Knicks",
       "player": "Miles McBride",
       "personId": 1630540
     },
     "37": {
-      "team": "Detroit Pistons",
+      "team": "Charlotte Hornets",
       "player": "JT Thor",
       "personId": 1630550
     },
@@ -1415,7 +1415,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1629674
     },
     "40": {
-      "team": "Sacramento Kings",
+      "team": "Utah Jazz",
       "player": "Jared Butler",
       "personId": 1630215
     },
@@ -1430,7 +1430,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1630587
     },
     "43": {
-      "team": "New Orleans Pelicans",
+      "team": "Portland Trail Blazers",
       "player": "Greg Brown III",
       "personId": 1630535
     },
@@ -1512,7 +1512,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1631098
     },
     "11": {
-      "team": "New York Knicks",
+      "team": "Oklahoma City Thunder",
       "player": "Ousmane Dieng",
       "personId": 1631172
     },
@@ -1522,12 +1522,12 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1631114
     },
     "13": {
-      "team": "Charlotte Hornets",
+      "team": "Detroit Pistons",
       "player": "Jalen Duren",
       "personId": 1631105
     },
     "14": {
-      "team": "Cleveland Cavaliers",
+      "team": "Utah Jazz",
       "player": "Ochai Agbaji",
       "personId": 1630534
     },
@@ -1552,7 +1552,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1631207
     },
     "19": {
-      "team": "Minnesota Timberwolves",
+      "team": "Memphis Grizzlies",
       "player": "Jake LaRavia",
       "personId": 1631222
     },
@@ -1567,12 +1567,12 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1631128
     },
     "22": {
-      "team": "Memphis Grizzlies",
+      "team": "Utah Jazz",
       "player": "Walker Kessler",
       "personId": 1631117
     },
     "23": {
-      "team": "Philadelphia 76ers",
+      "team": "Memphis Grizzlies",
       "player": "David Roddy",
       "personId": 1631223
     },
@@ -1587,7 +1587,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1631104
     },
     "26": {
-      "team": "Dallas Mavericks",
+      "team": "Minnesota Timberwolves",
       "player": "Wendell Moore Jr.",
       "personId": 1631111
     },
@@ -1602,12 +1602,12 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1631116
     },
     "29": {
-      "team": "Memphis Grizzlies",
+      "team": "Houston Rockets",
       "player": "TyTy Washington Jr.",
       "personId": 1631102
     },
     "30": {
-      "team": "Oklahoma City Thunder",
+      "team": "Denver Nuggets",
       "player": "Peyton Watson",
       "personId": 1631212
     },
@@ -1642,12 +1642,12 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1630629
     },
     "37": {
-      "team": "Sacramento Kings",
+      "team": "Dallas Mavericks",
       "player": "Jaden Hardy",
       "personId": 1630702
     },
     "38": {
-      "team": "San Antonio Spurs",
+      "team": "Memphis Grizzlies",
       "player": "Kennedy Chandler",
       "personId": 1631113
     },
@@ -1657,7 +1657,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1631215
     },
     "40": {
-      "team": "Minnesota Timberwolves",
+      "team": "Charlotte Hornets",
       "player": "Bryce McGowens",
       "personId": 1631121
     },
@@ -1677,12 +1677,12 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1631217
     },
     "44": {
-      "team": "Atlanta Hawks",
+      "team": "Golden State Warriors",
       "player": "Ryan Rollins",
       "personId": 1631157
     },
     "45": {
-      "team": "Charlotte Hornets",
+      "team": "Minnesota Timberwolves",
       "player": "Josh Minott",
       "personId": 1631169
     },
@@ -1697,7 +1697,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1631246
     },
     "48": {
-      "team": "Minnesota Timberwolves",
+      "team": "Indiana Pacers",
       "player": "Kendall Brown",
       "personId": 1631112
     }
@@ -1734,12 +1734,12 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1641710
     },
     "7": {
-      "team": "Indiana Pacers",
+      "team": "Washington Wizards",
       "player": "Bilal Coulibaly",
       "personId": 1641731
     },
     "8": {
-      "team": "Washington Wizards",
+      "team": "Indiana Pacers",
       "player": "Jarace Walker",
       "personId": 1641716
     },
@@ -1749,7 +1749,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1641707
     },
     "10": {
-      "team": "Dallas Mavericks",
+      "team": "Oklahoma City Thunder",
       "player": "Cason Wallace",
       "personId": 1641717
     },
@@ -1759,7 +1759,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1641724
     },
     "12": {
-      "team": "Oklahoma City Thunder",
+      "team": "Dallas Mavericks",
       "player": "Dereck Lively II",
       "personId": 1641726
     },
@@ -1819,12 +1819,12 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1631200
     },
     "24": {
-      "team": "Sacramento Kings",
+      "team": "Dallas Mavericks",
       "player": "Olivier-Maxence Prosper",
       "personId": 1641765
     },
     "25": {
-      "team": "Memphis Grizzlies",
+      "team": "Detroit Pistons",
       "player": "Marcus Sasser",
       "personId": 1631204
     },
@@ -1844,7 +1844,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1641729
     },
     "29": {
-      "team": "Indiana Pacers",
+      "team": "Denver Nuggets",
       "player": "Julian Strawther",
       "personId": 1631124
     },
@@ -1859,47 +1859,47 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1641762
     },
     "32": {
-      "team": "Indiana Pacers",
+      "team": "Denver Nuggets",
       "player": "Jalen Pickett",
       "personId": 1629618
     },
     "33": {
-      "team": "San Antonio Spurs",
+      "team": "Minnesota Timberwolves",
       "player": "Leonard Miller",
       "personId": 1631159
     },
     "34": {
-      "team": "Charlotte Hornets",
+      "team": "Sacramento Kings",
       "player": "Colby Jones",
       "personId": 1641732
     },
     "35": {
-      "team": "Boston Celtics",
+      "team": "Chicago Bulls",
       "player": "Julian Phillips",
       "personId": 1641763
     },
     "36": {
-      "team": "Orlando Magic",
+      "team": "Milwaukee Bucks",
       "player": "Andre Jackson Jr.",
       "personId": 1641748
     },
     "37": {
-      "team": "Oklahoma City Thunder",
+      "team": "Denver Nuggets",
       "player": "Hunter Tyson",
       "personId": 1641816
     },
     "38": {
-      "team": "Sacramento Kings",
+      "team": "Boston Celtics",
       "player": "Jordan Walsh",
       "personId": 1641775
     },
     "39": {
-      "team": "Charlotte Hornets",
+      "team": "Atlanta Hawks",
       "player": "Mouhamed Gueye",
       "personId": 1631243
     },
     "40": {
-      "team": "Denver Nuggets",
+      "team": "Los Angeles Lakers",
       "player": "Maxwell Lewis",
       "personId": 1641721
     },
@@ -1981,7 +1981,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1642270
     },
     "8": {
-      "team": "San Antonio Spurs",
+      "team": "Minnesota Timberwolves",
       "player": "Rob Dillingham",
       "personId": 1642265
     },
@@ -2011,7 +2011,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1642269
     },
     "14": {
-      "team": "Portland Trail Blazers",
+      "team": "Washington Wizards",
       "player": "Bub Carrington",
       "personId": 1642267
     },
@@ -2051,7 +2051,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1642274
     },
     "22": {
-      "team": "Phoenix Suns",
+      "team": "Denver Nuggets",
       "player": "DaRon Holmes II",
       "personId": 1641747
     },
@@ -2061,7 +2061,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1642358
     },
     "24": {
-      "team": "New York Knicks",
+      "team": "Washington Wizards",
       "player": "Kyshawn George",
       "personId": 1642273
     },
@@ -2071,7 +2071,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1642359
     },
     "26": {
-      "team": "Washington Wizards",
+      "team": "Oklahoma City Thunder",
       "player": "Dillon Jones",
       "personId": 1641794
     },
@@ -2081,7 +2081,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1630545
     },
     "28": {
-      "team": "Denver Nuggets",
+      "team": "Phoenix Suns",
       "player": "Ryan Dunn",
       "personId": 1642346
     },
@@ -2111,12 +2111,12 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1641890
     },
     "34": {
-      "team": "Portland Trail Blazers",
+      "team": "New York Knicks",
       "player": "Tyler Kolek",
       "personId": 1642278
     },
     "35": {
-      "team": "San Antonio Spurs",
+      "team": "Indiana Pacers",
       "player": "Johnny Furphy",
       "personId": 1642277
     },
@@ -2126,12 +2126,12 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1642361
     },
     "37": {
-      "team": "Minnesota Timberwolves",
+      "team": "Detroit Pistons",
       "player": "Bobi Klintman",
       "personId": 1641752
     },
     "38": {
-      "team": "New York Knicks",
+      "team": "Oklahoma City Thunder",
       "player": "Ajay Mitchell",
       "personId": 1642349
     },
@@ -2141,7 +2141,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1642377
     },
     "40": {
-      "team": "Portland Trail Blazers",
+      "team": "Phoenix Suns",
       "player": "Oso Ighodaro",
       "personId": 1642345
     },
@@ -2161,12 +2161,12 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1642365
     },
     "44": {
-      "team": "Houston Rockets",
+      "team": "Miami Heat",
       "player": "Pelle Larsson",
       "personId": 1641796
     },
     "45": {
-      "team": "Sacramento Kings",
+      "team": "Toronto Raptors",
       "player": "Jamal Shead",
       "personId": 1642347
     },
@@ -2176,7 +2176,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1642353
     },
     "47": {
-      "team": "Orlando Magic",
+      "team": "New Orleans Pelicans",
       "player": "Antonio Reeves",
       "personId": 1641810
     },
@@ -2233,12 +2233,12 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1642867
     },
     "10": {
-      "team": "Houston Rockets",
+      "team": "Phoenix Suns",
       "player": "Khaman Maluach",
       "personId": 1642863
     },
     "11": {
-      "team": "Portland Trail Blazers",
+      "team": "Memphis Grizzlies",
       "player": "Cedric Coward",
       "personId": 1642907
     },
@@ -2248,7 +2248,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1642855
     },
     "13": {
-      "team": "Atlanta Hawks",
+      "team": "New Orleans Pelicans",
       "player": "Derik Queen",
       "personId": 1642852
     },
@@ -2263,7 +2263,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1642850
     },
     "16": {
-      "team": "Memphis Grizzlies",
+      "team": "Portland Trail Blazers",
       "player": "Yang Hansen",
       "personId": 1642905
     },
@@ -2273,7 +2273,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1642866
     },
     "18": {
-      "team": "Washington Wizards",
+      "team": "Utah Jazz",
       "player": "Walter Clayton Jr.",
       "personId": 1642383
     },
@@ -2288,22 +2288,22 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1642857
     },
     "21": {
-      "team": "Utah Jazz",
+      "team": "Washington Wizards",
       "player": "Will Riley",
       "personId": 1642860
     },
     "22": {
-      "team": "Atlanta Hawks",
+      "team": "Brooklyn Nets",
       "player": "Drake Powell",
       "personId": 1642962
     },
     "23": {
-      "team": "New Orleans Pelicans",
+      "team": "Atlanta Hawks",
       "player": "Asa Newell",
       "personId": 1642854
     },
     "24": {
-      "team": "Oklahoma City Thunder",
+      "team": "Sacramento Kings",
       "player": "Nique Clifford",
       "personId": 1642363
     },
@@ -2328,7 +2328,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1642864
     },
     "29": {
-      "team": "Phoenix Suns",
+      "team": "Charlotte Hornets",
       "player": "Liam McNeeley",
       "personId": 1642862
     },
@@ -2338,12 +2338,12 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1642949
     },
     "31": {
-      "team": "Minnesota Timberwolves",
+      "team": "Phoenix Suns",
       "player": "Rasheer Fleming",
       "personId": 1642853
     },
     "32": {
-      "team": "Boston Celtics",
+      "team": "Orlando Magic",
       "player": "Noah Penda",
       "personId": 1642869
     },
@@ -2363,7 +2363,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1641780
     },
     "36": {
-      "team": "Brooklyn Nets",
+      "team": "Los Angeles Lakers",
       "player": "Adou Thiero",
       "personId": 1642876
     },
@@ -2373,7 +2373,7 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1642404
     },
     "38": {
-      "team": "San Antonio Spurs",
+      "team": "Indiana Pacers",
       "player": "Kam Jones",
       "personId": 1642880
     },
@@ -2383,12 +2383,12 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1642918
     },
     "40": {
-      "team": "Washington Wizards",
+      "team": "New Orleans Pelicans",
       "player": "Micah Peavy",
       "personId": 1642877
     },
     "41": {
-      "team": "Golden State Warriors",
+      "team": "Phoenix Suns",
       "player": "Koby Brea",
       "personId": 1642886
     },
@@ -2408,12 +2408,12 @@ export const DRAFT_ORDER: Record<number, Record<number, OriginalPick>> = {
       "personId": 1642964
     },
     "45": {
-      "team": "Chicago Bulls",
+      "team": "Minnesota Timberwolves",
       "player": "Rocco Zikarsky",
       "personId": 1642911
     },
     "46": {
-      "team": "Orlando Magic",
+      "team": "Boston Celtics",
       "player": "Amari Williams",
       "personId": 1642873
     },

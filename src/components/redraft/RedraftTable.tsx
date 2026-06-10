@@ -26,6 +26,8 @@ import {
   ChevronUp,
   Download,
   ImageDown,
+  PanelLeftClose,
+  PanelLeftOpen,
   RotateCcw,
   Search,
   X,
@@ -95,6 +97,8 @@ export function RedraftTable({
   const [search, setSearch] = useState("");
   const [activeId, setActiveId] = useState<string | null>(null);
   const [open, setOpen] = useState<Player | null>(null);
+  // Collapse just the original-pick part of the rail; slot + logo stay.
+  const [railOpen, setRailOpen] = useState(true);
 
   const orderRef = useRef(order);
   orderRef.current = order;
@@ -361,13 +365,29 @@ export function RedraftTable({
           className="border-border bg-surface overflow-auto rounded-xl border"
           style={{ maxHeight: "calc(100vh - 230px)", minHeight: 360 }}
         >
-          <div className="min-w-[1150px]">
+          <div className={railOpen ? "min-w-[1150px]" : "min-w-[960px]"}>
             {/* header strip */}
             <div className="bg-surface-2 sticky top-0 z-20 flex shadow-[inset_0_-1px_0_0_var(--color-border)]">
-              <div className="bg-surface-2 border-border/70 sticky left-0 z-10 flex w-[322px] shrink-0 items-center border-r pl-4">
+              <div
+                className={`bg-surface-2 border-border/70 sticky left-0 z-10 flex shrink-0 items-center justify-between border-r pl-4 pr-2 ${railOpen ? "w-[322px]" : "w-[128px]"}`}
+              >
                 <span className="text-ink-faint font-mono text-[11px] uppercase">
-                  Pick · Draft night
+                  {railOpen ? "Pick · Draft night" : "Pick"}
                 </span>
+                <button
+                  onClick={() => setRailOpen((v) => !v)}
+                  aria-label={
+                    railOpen ? "Collapse draft night" : "Expand draft night"
+                  }
+                  title={railOpen ? "Collapse draft night" : "Expand draft night"}
+                  className="text-ink-faint hover:text-ink cursor-pointer rounded p-1 transition-colors"
+                >
+                  {railOpen ? (
+                    <PanelLeftClose className="h-4 w-4" />
+                  ) : (
+                    <PanelLeftOpen className="h-4 w-4" />
+                  )}
+                </button>
               </div>
               <div className="flex flex-1 items-center py-2">
                 <span className="w-8" />
@@ -408,7 +428,9 @@ export function RedraftTable({
             {/* body */}
             <div className="flex">
               {/* static draft-night rail — never part of the drag */}
-              <div className="bg-surface border-border/70 sticky left-0 z-10 w-[322px] shrink-0 border-r">
+              <div
+                className={`bg-surface border-border/70 sticky left-0 z-10 shrink-0 border-r ${railOpen ? "w-[322px]" : "w-[128px]"}`}
+              >
                 {visibleIds.map((id) => {
                   const slot = slotOf.get(id) ?? 0;
                   const info = slotInfo(slot);
@@ -426,29 +448,30 @@ export function RedraftTable({
                         {slot}
                       </span>
                       <TeamLogo team={info?.team} size={42} />
-                      {info ? (
-                        <div className="flex min-w-0 flex-1 items-center gap-2">
-                          <Headshot
-                            src={
-                              info.personId
-                                ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/headshots/players/${info.personId}.png`
-                                : null
-                            }
-                            alt={info.player}
-                            size={40}
-                          />
-                          <div className="min-w-0 flex-1">
-                            <div className="text-ink-muted truncate text-[13px] font-semibold leading-tight">
-                              {info.player}
-                            </div>
-                            <div className="text-ink-faint font-mono text-[9px] uppercase tracking-wide">
-                              Actual pick
+                      {railOpen &&
+                        (info ? (
+                          <div className="flex min-w-0 flex-1 items-center gap-2">
+                            <Headshot
+                              src={
+                                info.personId
+                                  ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/headshots/players/${info.personId}.png`
+                                  : null
+                              }
+                              alt={info.player}
+                              size={40}
+                            />
+                            <div className="min-w-0 flex-1">
+                              <div className="text-ink-muted truncate text-[13px] font-semibold leading-tight">
+                                {info.player}
+                              </div>
+                              <div className="text-ink-faint font-mono text-[9px] uppercase tracking-wide">
+                                Actual pick
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ) : (
-                        <span className="text-ink-faint text-[11px]">—</span>
-                      )}
+                        ) : (
+                          <span className="text-ink-faint text-[11px]">—</span>
+                        ))}
                     </div>
                   );
                 })}

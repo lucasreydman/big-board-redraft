@@ -98,6 +98,9 @@ def parse_draft(html: str) -> dict[int, dict]:
 
         out[pick] = {
             "name": cells.get("player"),
+            # BBRef credits the team that ACQUIRED the player on draft night
+            # (DAL for Dončić), unlike nba_api which has the team on the clock.
+            "team_abbr": cells.get("team_id") or None,
             "bbref_slug": slug,
             "college": cells.get("college_name") or None,
             "seasons": _to_int(cells.get("seasons")),
