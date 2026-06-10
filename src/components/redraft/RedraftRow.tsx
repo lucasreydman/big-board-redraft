@@ -136,7 +136,9 @@ export function RedraftRow({
             <span
               key={col.key}
               className={[
-                "tnum w-16 justify-end px-1 text-right text-base",
+                // text-[15px] not text-base: "base" is a theme COLOR here, so
+                // text-base would paint the numbers background-dark.
+                "tnum w-16 justify-end px-1 text-right text-[15px]",
                 col.cellClass ?? "inline-flex",
                 v === null ? "text-ink-faint/60" : heatClass(heat(col.key, v)),
               ].join(" ")}

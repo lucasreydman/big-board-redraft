@@ -361,10 +361,10 @@ export function RedraftTable({
           className="border-border bg-surface overflow-auto rounded-xl border"
           style={{ maxHeight: "calc(100vh - 230px)", minHeight: 360 }}
         >
-          <div className="min-w-[1080px]">
+          <div className="min-w-[1150px]">
             {/* header strip */}
             <div className="bg-surface-2 sticky top-0 z-20 flex shadow-[inset_0_-1px_0_0_var(--color-border)]">
-              <div className="bg-surface-2 border-border/70 sticky left-0 z-10 flex w-[252px] shrink-0 items-center border-r pl-4">
+              <div className="bg-surface-2 border-border/70 sticky left-0 z-10 flex w-[322px] shrink-0 items-center border-r pl-4">
                 <span className="text-ink-faint font-mono text-[11px] uppercase">
                   Pick · Draft night
                 </span>
@@ -408,7 +408,7 @@ export function RedraftTable({
             {/* body */}
             <div className="flex">
               {/* static draft-night rail — never part of the drag */}
-              <div className="bg-surface border-border/70 sticky left-0 z-10 w-[252px] shrink-0 border-r">
+              <div className="bg-surface border-border/70 sticky left-0 z-10 w-[322px] shrink-0 border-r">
                 {visibleIds.map((id) => {
                   const slot = slotOf.get(id) ?? 0;
                   const info = slotInfo(slot);
@@ -427,18 +427,18 @@ export function RedraftTable({
                       </span>
                       <TeamLogo team={info?.team} size={42} />
                       {info ? (
-                        <div className="flex min-w-0 items-center gap-2">
+                        <div className="flex min-w-0 flex-1 items-center gap-2">
                           <Headshot
                             src={
                               info.personId
-                                ? `https://cdn.nba.com/headshots/nba/latest/1040x760/${info.personId}.png`
+                                ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/headshots/players/${info.personId}.png`
                                 : null
                             }
                             alt={info.player}
                             size={40}
                           />
-                          <div className="min-w-0">
-                            <div className="text-ink-muted truncate text-[12px] font-semibold leading-tight">
+                          <div className="min-w-0 flex-1">
+                            <div className="text-ink-muted truncate text-[13px] font-semibold leading-tight">
                               {info.player}
                             </div>
                             <div className="text-ink-faint font-mono text-[9px] uppercase tracking-wide">

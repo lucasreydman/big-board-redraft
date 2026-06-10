@@ -118,12 +118,13 @@ const NICKNAME_NBA_ID: Record<string, number> = {
   Wizards: 1610612764,
 };
 
-/** Official NBA logo URL for a team name like "Dallas Mavericks". */
+/** Team logo URL for a name like "Dallas Mavericks" — served from our own
+ * storage mirror (cdn.nba.com blocks/fails in some browsers). */
 export function teamLogoUrl(team: string | null | undefined): string | null {
   if (!team) return null;
   for (const [nickname, id] of Object.entries(NICKNAME_NBA_ID)) {
     if (team.endsWith(nickname))
-      return `https://cdn.nba.com/logos/nba/${id}/global/L/logo.svg`;
+      return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/headshots/logos/${id}.svg`;
   }
   return null;
 }

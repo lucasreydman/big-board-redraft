@@ -137,7 +137,8 @@ export function ProspectRow({
               <span
                 key={col.key}
                 className={[
-                  "tnum w-16 justify-end text-right text-base",
+                  // text-[15px] not text-base: "base" is a theme COLOR here.
+                  "tnum w-16 justify-end text-right text-[15px]",
                   col.cellClass ?? "inline-flex",
                   v == null
                     ? "text-ink-faint/60"
