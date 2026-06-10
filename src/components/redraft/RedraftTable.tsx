@@ -97,8 +97,9 @@ export function RedraftTable({
   const [search, setSearch] = useState("");
   const [activeId, setActiveId] = useState<string | null>(null);
   const [open, setOpen] = useState<Player | null>(null);
-  // Collapse just the original-pick part of the rail; slot + logo stay.
-  const [railOpen, setRailOpen] = useState(true);
+  // The original-pick part of the rail; slot + logo always stay. Closed by
+  // default — the labeled toggle opens it.
+  const [railOpen, setRailOpen] = useState(false);
 
   const orderRef = useRef(order);
   orderRef.current = order;
@@ -372,20 +373,35 @@ export function RedraftTable({
                 className={`bg-surface-2 border-border/70 sticky left-0 z-10 flex shrink-0 items-center justify-between border-r pl-4 pr-2 ${railOpen ? "w-[362px]" : "w-[168px]"}`}
               >
                 <span className="text-ink-faint font-mono text-[11px] uppercase">
-                  {railOpen ? "Pick · Draft night" : "Pick"}
+                  Pick
                 </span>
                 <button
                   onClick={() => setRailOpen((v) => !v)}
                   aria-label={
-                    railOpen ? "Collapse draft night" : "Expand draft night"
+                    railOpen ? "Hide original picks" : "Show original picks"
                   }
-                  title={railOpen ? "Collapse draft night" : "Expand draft night"}
-                  className="text-ink-faint hover:text-ink cursor-pointer rounded p-1 transition-colors"
+                  title={
+                    railOpen
+                      ? "Hide who was actually drafted at each slot"
+                      : "Show who was actually drafted at each slot"
+                  }
+                  className={[
+                    "inline-flex cursor-pointer items-center gap-1.5 rounded-md border px-2 py-1 font-mono text-[10px] font-semibold uppercase tracking-wide transition-colors duration-150",
+                    railOpen
+                      ? "border-border text-ink-muted hover:text-ink"
+                      : "border-accent/40 text-accent hover:bg-accent/10",
+                  ].join(" ")}
                 >
                   {railOpen ? (
-                    <PanelLeftClose className="h-4 w-4" />
+                    <>
+                      <PanelLeftClose className="h-3.5 w-3.5" />
+                      Hide OG picks
+                    </>
                   ) : (
-                    <PanelLeftOpen className="h-4 w-4" />
+                    <>
+                      <PanelLeftOpen className="h-3.5 w-3.5" />
+                      OG picks
+                    </>
                   )}
                 </button>
               </div>
