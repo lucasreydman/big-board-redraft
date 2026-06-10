@@ -3,8 +3,8 @@
 import { useState } from "react";
 
 // A rounded headshot frame with an optional team/position accent ring.
-// Falls back to a silhouette on 404 / missing URL (players who never played,
-// dead CDN links, prospects without an ESPN id).
+// One cache-busted retry on load failure (network blips shouldn't stick),
+// then a silhouette fallback (players who never played, dead links).
 export function Headshot({
   src,
   alt,
@@ -16,8 +16,10 @@ export function Headshot({
   size?: number;
   accent?: string;
 }) {
-  const [failed, setFailed] = useState(false);
-  const showSilhouette = !src || failed;
+  const [attempt, setAttempt] = useState(0);
+  const showSilhouette = !src || attempt >= 2;
+  const effectiveSrc =
+    src && attempt === 1 ? `${src}${src.includes("?") ? "&" : "?"}r=1` : src;
 
   return (
     <div
@@ -37,12 +39,12 @@ export function Headshot({
         // hotlinked CDNs and mirrored storage URLs alike.
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={src!}
+          src={effectiveSrc!}
           alt={alt}
           width={size}
           height={size}
           loading="lazy"
-          onError={() => setFailed(true)}
+          onError={() => setAttempt((a) => a + 1)}
           className="h-full w-full object-cover object-top"
         />
       )}
