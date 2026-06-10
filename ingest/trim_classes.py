@@ -113,22 +113,33 @@ def main() -> None:
 
     print(f"\ntotal cuts: {len(cut_ids)}")
     if not args.apply:
-        print("dry run — re-run with --apply to delete")
+        print("dry run — re-run with --apply to hide the cuts")
         return
 
+    # Soft-hide instead of delete: the rows (and their fetched stats) stay, so
+    # the next cut-line change is a flag flip with zero API calls.
     headers = {
         "apikey": config.SUPABASE_SERVICE_ROLE_KEY,
         "Authorization": f"Bearer {config.SUPABASE_SERVICE_ROLE_KEY}",
+        "Content-Type": "application/json",
     }
+    resp = requests.patch(
+        f"{config.SUPABASE_URL}/rest/v1/players?id=not.is.null",
+        json={"hidden": False},
+        headers=headers,
+        timeout=60,
+    )
+    resp.raise_for_status()
     for i in range(0, len(cut_ids), 50):
         chunk = ",".join(cut_ids[i : i + 50])
-        resp = requests.delete(
+        resp = requests.patch(
             f"{config.SUPABASE_URL}/rest/v1/players?id=in.({chunk})",
+            json={"hidden": True},
             headers=headers,
             timeout=60,
         )
         resp.raise_for_status()
-    print(f"deleted {len(cut_ids)} players")
+    print(f"hid {len(cut_ids)} players (rows kept; re-run any time to re-trim)")
 
     if args.reset_redrafts:
         resp = requests.delete(

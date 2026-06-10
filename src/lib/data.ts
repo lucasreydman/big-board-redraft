@@ -76,6 +76,7 @@ export async function getPlayersByYear(year: number): Promise<Player[]> {
     .from("players")
     .select("*, career_stats(*)")
     .eq("draft_year", year)
+    .eq("hidden", false)
     .order("overall_pick", { ascending: true });
 
   if (error) throw new Error(`Failed to load ${year} class: ${error.message}`);

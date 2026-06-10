@@ -24,6 +24,7 @@ export interface Database {
           team: string | null;
           college: string | null;
           headshot_url: string | null;
+          hidden: boolean;
           created_at: string;
           updated_at: string;
         };
