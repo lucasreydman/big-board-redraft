@@ -30,7 +30,8 @@ import config
 import supabase_client as sb
 
 CURRENT_CYCLE = 2026
-KEEP = 30
+KEEP = 48
+LOTTERY = 14
 UDFA_PICK = 100
 
 
@@ -78,13 +79,13 @@ def main() -> None:
     for year in sorted({p["draft_year"] for p in players}):
         cls = [p for p in players if p["draft_year"] == year]
         cls.sort(key=lambda p: (keep_score(p), p["gp"] or 0), reverse=True)
-        # Forced keeps: top-10 picks are always in — a redraft needs its busts
+        # Forced keeps: lottery picks are always in — a redraft needs its busts
         # so you can see where they SHOULD have gone. Plus the injury shield:
         # a first-rounder from the newest class who hasn't played yet.
         forced = [
             p
             for p in cls
-            if p["overall_pick"] <= 10
+            if p["overall_pick"] <= LOTTERY
             or (
                 year == CURRENT_CYCLE - 1
                 and p["overall_pick"] <= 30
@@ -95,7 +96,7 @@ def main() -> None:
         keep = forced + rest[: KEEP - len(forced)]
         cut = rest[KEEP - len(forced) :]
         for p in forced:
-            why = "top-10 pick" if p["overall_pick"] <= 10 else "injured, no games"
+            why = "lottery pick" if p["overall_pick"] <= LOTTERY else "injured, no games"
             print(f"  SHIELD       #{p['overall_pick']}  {p['name']} ({why})")
         cut_ids += [p["id"] for p in cut]
         print(f"\n=== {year}: keep {len(keep)}, cut {len(cut)} ===")
