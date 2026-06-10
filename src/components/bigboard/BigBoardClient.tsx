@@ -529,40 +529,6 @@ export function BigBoardClient({
         )}
       </div>
 
-      {/* column header strip */}
-      <div className="text-ink-faint flex items-center gap-2 px-2">
-        <span className="w-11 text-right font-mono text-[11px] uppercase">
-          Rank
-        </span>
-        <span className="w-20 text-center font-mono text-[11px] uppercase">
-          Pick
-        </span>
-        <span className="w-8" />
-        <span className="w-[76px]" />
-        <span className="flex-1 font-mono text-[11px] uppercase">Prospect</span>
-        <div className="flex items-center">
-          {PROSPECT_STAT_COLUMNS.map((col) => (
-            <span
-              key={col.key}
-              className={`w-16 justify-end text-right ${col.cellClass ?? "inline-flex"}`}
-            >
-              <button
-                onClick={() => handleSort(col.key)}
-                aria-label={`Sort by ${col.label}`}
-                className={[
-                  "hover:text-ink inline-flex cursor-pointer items-center font-mono text-[11px] uppercase tracking-wide transition-colors",
-                  sortKey === col.key ? "text-accent" : "text-ink-faint",
-                ].join(" ")}
-              >
-                {col.label}
-                {sortKey === col.key && (sortDir === "desc" ? " ↓" : " ↑")}
-              </button>
-            </span>
-          ))}
-        </div>
-        <span className="w-24" />
-      </div>
-
       {/* board */}
       <DndContext
         sensors={sensors}
@@ -574,20 +540,59 @@ export function BigBoardClient({
       >
         <div
           ref={boardRef}
-          className="border-border bg-surface overflow-hidden rounded-xl border"
+          className="border-border bg-surface overflow-auto rounded-xl border"
+          style={{ maxHeight: "calc(100vh - 230px)", minHeight: 360 }}
         >
-          {visibleIds.length === 0 ? (
-            <div className="text-ink-muted p-10 text-center text-sm">
-              No prospects on the board match this view.
+          <div className="min-w-[1000px]">
+            {/* header strip */}
+            <div className="bg-surface-2 text-ink-faint sticky top-0 z-20 flex items-center gap-2 px-2 py-2 shadow-[inset_0_-1px_0_0_var(--color-border)]">
+              <span className="w-11 text-right font-mono text-[11px] uppercase">
+                Rank
+              </span>
+              <span className="w-20 text-center font-mono text-[11px] uppercase">
+                Pick
+              </span>
+              <span className="w-8" />
+              <span className="w-[76px]" />
+              <span className="flex-1 font-mono text-[11px] uppercase">
+                Prospect
+              </span>
+              <div className="flex items-center">
+                {PROSPECT_STAT_COLUMNS.map((col) => (
+                  <span
+                    key={col.key}
+                    className={`w-16 justify-end text-right ${col.cellClass ?? "inline-flex"}`}
+                  >
+                    <button
+                      onClick={() => handleSort(col.key)}
+                      aria-label={`Sort by ${col.label}`}
+                      className={[
+                        "hover:text-ink inline-flex cursor-pointer items-center font-mono text-[11px] uppercase tracking-wide transition-colors",
+                        sortKey === col.key ? "text-accent" : "text-ink-faint",
+                      ].join(" ")}
+                    >
+                      {col.label}
+                      {sortKey === col.key && (sortDir === "desc" ? " ↓" : " ↑")}
+                    </button>
+                  </span>
+                ))}
+              </div>
+              <span className="w-24" />
             </div>
-          ) : (
-            <SortableContext
-              items={visibleIds}
-              strategy={verticalListSortingStrategy}
-            >
-              {rows}
-            </SortableContext>
-          )}
+
+            {visibleIds.length === 0 ? (
+              <div className="text-ink-muted p-10 text-center text-sm">
+                No prospects on the board match this view.
+              </div>
+            ) : (
+              <SortableContext
+                items={visibleIds}
+                strategy={verticalListSortingStrategy}
+              >
+                {rows}
+              </SortableContext>
+            )}
+          </div>
         </div>
 
         <DragOverlay>
