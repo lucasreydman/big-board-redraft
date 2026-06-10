@@ -43,7 +43,12 @@ import { sortPlayerIds, type SortDir } from "@/lib/sort";
 import { buildHeat } from "@/lib/heat";
 import { teamColor } from "@/lib/teamColors";
 import { DRAFT_ORDER, type OriginalPick } from "@/lib/draftOrder";
-import { REDRAFT_STAT_COLUMNS, UDFA_PICK, type StatKey } from "@/lib/constants";
+import {
+  REDRAFT_STAT_COLUMNS,
+  UDFA_PICK,
+  UDFA_VALUE_PICK,
+  type StatKey,
+} from "@/lib/constants";
 import { pickDelta } from "@/lib/format";
 import { exportCsv, exportPng } from "@/lib/export";
 import type { Player } from "@/lib/types";
@@ -263,7 +268,7 @@ export function RedraftTable({
         slotInfo(slot)?.player ?? "",
         p.name,
         udfa ? "UDFA" : p.overallPick,
-        udfa ? "" : pickDelta(p.overallPick, slot),
+        pickDelta(udfa ? UDFA_VALUE_PICK : p.overallPick, slot),
         p.college ?? "",
         p.team ?? "",
         ...REDRAFT_STAT_COLUMNS.map((c) => {

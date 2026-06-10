@@ -61,7 +61,10 @@ export function PlayerDrawer({
                         .join(" · ") || "—"}
                     </div>
                     <div className="tnum text-ink-faint mt-1 text-xs">
-                      {player.draftYear} Draft · Pick #{player.overallPick}
+                      {player.draftYear} Draft ·{" "}
+                      {player.overallPick >= 100
+                        ? "Undrafted"
+                        : `Pick #${player.overallPick}`}
                       {player.roundNumber ? ` · Round ${player.roundNumber}` : ""}
                       {slot ? ` · Your slot #${slot}` : ""}
                     </div>

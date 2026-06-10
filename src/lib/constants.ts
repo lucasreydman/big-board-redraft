@@ -8,6 +8,9 @@ export const PROSPECT_YEAR = 2026;
 /** Sentinel overall_pick base for undrafted players (101, 102, … per class). */
 export const UDFA_PICK = 100;
 
+/** For movement math, every UDFA counts as "pick 61" — one past the draft. */
+export const UDFA_VALUE_PICK = 61;
+
 export type StatKey =
   | "gp"
   | "ppg"

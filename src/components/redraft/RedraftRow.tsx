@@ -15,7 +15,12 @@ import {
 import { Headshot } from "@/components/Headshot";
 import { DeltaBadge } from "@/components/DeltaBadge";
 import { teamColor } from "@/lib/teamColors";
-import { REDRAFT_STAT_COLUMNS, UDFA_PICK, type StatKey } from "@/lib/constants";
+import {
+  REDRAFT_STAT_COLUMNS,
+  UDFA_PICK,
+  UDFA_VALUE_PICK,
+  type StatKey,
+} from "@/lib/constants";
 import { fmtInt, fmtNum, fmtPct, pickDelta } from "@/lib/format";
 import { heatClass, type HeatLevel } from "@/lib/heat";
 import type { Player } from "@/lib/types";
@@ -98,16 +103,22 @@ export function RedraftRow({
           >
             {player.name}
           </button>
+          <DeltaBadge
+            delta={pickDelta(
+              isUdfa ? UDFA_VALUE_PICK : player.overallPick,
+              slot,
+            )}
+          />
+        </div>
+        <div className="text-ink-muted mt-1 flex items-center gap-2 text-[13px] leading-tight">
           {isUdfa ? (
-            <span className="border-accent/40 text-accent shrink-0 rounded border px-1.5 py-0.5 font-mono text-[10px] font-semibold uppercase">
+            <span
+              className="shrink-0 font-mono text-[11px] font-semibold uppercase"
+              style={{ color: accent }}
+            >
               UDFA
             </span>
           ) : (
-            <DeltaBadge delta={pickDelta(player.overallPick, slot)} />
-          )}
-        </div>
-        <div className="text-ink-muted mt-1 flex items-center gap-2 text-[13px] leading-tight">
-          {!isUdfa && (
             <span
               className="tnum shrink-0 font-semibold"
               style={{ color: accent }}
