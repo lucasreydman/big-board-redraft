@@ -39,5 +39,5 @@ ingest/data/headshots/
 
 .supabase-db-password.txt
 .vercel
-ingest/data/run-*.log
+ingest/data/*.log
 supabase/.temp/
