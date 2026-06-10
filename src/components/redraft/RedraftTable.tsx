@@ -46,6 +46,7 @@ import { buildHeat } from "@/lib/heat";
 import { teamColor } from "@/lib/teamColors";
 import { DRAFT_ORDER, type OriginalPick } from "@/lib/draftOrder";
 import {
+  CUTS_ENABLED,
   REDRAFT_STAT_COLUMNS,
   UDFA_PICK,
   UDFA_VALUE_PICK,
@@ -349,7 +350,7 @@ export function RedraftTable({
           <SaveIndicator state={state} />
         </div>
         <div className="flex items-center gap-2">
-          {displayIds.length > 30 && (
+          {CUTS_ENABLED && displayIds.length > 30 && (
             <ToolButton
               onClick={() => keepTop(30)}
               icon={<Scissors className="h-3.5 w-3.5" />}
@@ -608,7 +609,7 @@ export function RedraftTable({
       </DndContext>
 
       {/* cut pile */}
-      {cuts.length > 0 && (
+      {CUTS_ENABLED && cuts.length > 0 && (
         <div className="border-border bg-surface/50 rounded-xl border p-4">
           <div className="display text-ink-muted mb-3 text-sm font-semibold tracking-wide">
             Cut from board ({cuts.length})

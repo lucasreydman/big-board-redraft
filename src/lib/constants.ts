@@ -8,6 +8,10 @@ export const PROSPECT_YEAR = 2026;
 /** Sentinel overall_pick base for undrafted players (101, 102, … per class). */
 export const UDFA_PICK = 100;
 
+/** Per-user cut pile (cut from board / top-30 trim / restore). Off while every
+ * class is pre-trimmed to a clean top 30 — flip to re-enable the feature. */
+export const CUTS_ENABLED = false;
+
 /** For movement math, every UDFA counts as "pick 61" — one past the draft. */
 export const UDFA_VALUE_PICK = 61;
 

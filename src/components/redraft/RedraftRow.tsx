@@ -17,6 +17,7 @@ import { Headshot } from "@/components/Headshot";
 import { DeltaBadge } from "@/components/DeltaBadge";
 import { teamColor } from "@/lib/teamColors";
 import {
+  CUTS_ENABLED,
   REDRAFT_STAT_COLUMNS,
   UDFA_PICK,
   UDFA_VALUE_PICK,
@@ -234,9 +235,11 @@ function RowMenu({
               >
                 <ArrowDownToLine className="h-3.5 w-3.5" /> Move to bottom
               </MenuItem>
-              <MenuItem onSelect={onCut}>
-                <Scissors className="h-3.5 w-3.5" /> Cut from board
-              </MenuItem>
+              {CUTS_ENABLED && (
+                <MenuItem onSelect={onCut}>
+                  <Scissors className="h-3.5 w-3.5" /> Cut from board
+                </MenuItem>
+              )}
               <div
                 className="border-border mt-1 flex items-center gap-1.5 border-t p-2"
                 onKeyDown={(e) => e.stopPropagation()}
