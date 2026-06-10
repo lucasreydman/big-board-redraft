@@ -49,10 +49,13 @@ def keep_score(p: dict) -> float:
 
 
 def main() -> None:
+    global KEEP
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--apply", action="store_true")
     parser.add_argument("--reset-redrafts", action="store_true")
+    parser.add_argument("--keep", type=int, default=KEEP)
     args = parser.parse_args()
+    KEEP = args.keep
 
     config.require_supabase()
 
