@@ -61,7 +61,7 @@ export function RedraftRow({
         boxShadow: `inset 4px 0 0 0 ${accent}`,
       }}
       className={[
-        "border-border/70 group flex h-20 items-center border-b",
+        "border-border/70 group flex h-[88px] items-center border-b",
         isDragging
           ? "bg-surface-3 relative z-10 opacity-50"
           : "hover:bg-surface-2/70 transition-colors duration-150",

@@ -365,11 +365,11 @@ export function RedraftTable({
           className="border-border bg-surface overflow-auto rounded-xl border"
           style={{ maxHeight: "calc(100vh - 230px)", minHeight: 360 }}
         >
-          <div className={railOpen ? "min-w-[1150px]" : "min-w-[960px]"}>
+          <div className={railOpen ? "min-w-[1190px]" : "min-w-[1000px]"}>
             {/* header strip */}
             <div className="bg-surface-2 sticky top-0 z-20 flex shadow-[inset_0_-1px_0_0_var(--color-border)]">
               <div
-                className={`bg-surface-2 border-border/70 sticky left-0 z-10 flex shrink-0 items-center justify-between border-r pl-4 pr-2 ${railOpen ? "w-[322px]" : "w-[128px]"}`}
+                className={`bg-surface-2 border-border/70 sticky left-0 z-10 flex shrink-0 items-center justify-between border-r pl-4 pr-2 ${railOpen ? "w-[362px]" : "w-[168px]"}`}
               >
                 <span className="text-ink-faint font-mono text-[11px] uppercase">
                   {railOpen ? "Pick · Draft night" : "Pick"}
@@ -429,7 +429,7 @@ export function RedraftTable({
             <div className="flex">
               {/* static draft-night rail — never part of the drag */}
               <div
-                className={`bg-surface border-border/70 sticky left-0 z-10 shrink-0 border-r ${railOpen ? "w-[322px]" : "w-[128px]"}`}
+                className={`bg-surface border-border/70 sticky left-0 z-10 shrink-0 border-r ${railOpen ? "w-[362px]" : "w-[168px]"}`}
               >
                 {visibleIds.map((id) => {
                   const slot = slotOf.get(id) ?? 0;
@@ -437,7 +437,7 @@ export function RedraftTable({
                   return (
                     <div
                       key={`rail-${id}`}
-                      className="border-border/70 flex h-20 items-center gap-3 border-b pl-3 pr-2"
+                      className="border-border/70 flex h-[88px] items-center gap-3 border-b pl-3 pr-2"
                     >
                       <span
                         className={[
@@ -447,7 +447,7 @@ export function RedraftTable({
                       >
                         {slot}
                       </span>
-                      <TeamLogo team={info?.team} size={42} />
+                      <TeamLogo team={info?.team} size={80} />
                       {railOpen &&
                         (info ? (
                           <div className="flex min-w-0 flex-1 items-center gap-2">
