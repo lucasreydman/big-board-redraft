@@ -58,10 +58,10 @@ export function RedraftRow({
       style={{
         transform: CSS.Transform.toString(transform),
         transition,
-        boxShadow: `inset 3px 0 0 0 ${accent}`,
+        boxShadow: `inset 4px 0 0 0 ${accent}`,
       }}
       className={[
-        "border-border/70 group flex h-14 items-center border-b",
+        "border-border/70 group flex h-20 items-center border-b",
         isDragging
           ? "bg-surface-3 relative z-10 opacity-50"
           : "hover:bg-surface-2/70 transition-colors duration-150",
@@ -74,9 +74,9 @@ export function RedraftRow({
         {...listeners}
         aria-label={`Drag ${player.name}`}
         disabled={!draggable}
-        className="text-ink-faint hover:text-ink ml-1 cursor-grab touch-none rounded p-1 transition-colors active:cursor-grabbing disabled:cursor-default disabled:opacity-20"
+        className="text-ink-faint hover:text-ink ml-1 cursor-grab touch-none rounded p-1.5 transition-colors active:cursor-grabbing disabled:cursor-default disabled:opacity-20"
       >
-        <GripVertical className="h-4 w-4" />
+        <GripVertical className="h-5 w-5" />
       </button>
 
       {/* headshot */}
@@ -84,29 +84,29 @@ export function RedraftRow({
         <Headshot
           src={player.headshotUrl}
           alt={player.name}
-          size={44}
+          size={68}
           accent={accent}
         />
       </div>
 
       {/* name + actual pick + delta */}
-      <div className="min-w-[190px] flex-1 pl-2.5 pr-2">
-        <div className="flex items-center gap-2">
+      <div className="min-w-[220px] flex-1 pl-3.5 pr-2">
+        <div className="flex items-center gap-2.5">
           <button
             onClick={onOpen}
-            className="display text-ink hover:text-accent cursor-pointer truncate text-left text-lg font-bold leading-tight transition-colors duration-150"
+            className="display text-ink hover:text-accent cursor-pointer truncate text-left text-2xl font-bold leading-tight transition-colors duration-150"
           >
             {player.name}
           </button>
           {isUdfa ? (
-            <span className="border-accent/40 text-accent shrink-0 rounded border px-1 py-px font-mono text-[9px] font-semibold uppercase">
+            <span className="border-accent/40 text-accent shrink-0 rounded border px-1.5 py-0.5 font-mono text-[10px] font-semibold uppercase">
               UDFA
             </span>
           ) : (
             <DeltaBadge delta={pickDelta(player.overallPick, slot)} />
           )}
         </div>
-        <div className="text-ink-faint mt-0.5 flex items-center gap-1.5 text-[11px] leading-tight">
+        <div className="text-ink-muted mt-1 flex items-center gap-2 text-[13px] leading-tight">
           {!isUdfa && (
             <span
               className="tnum shrink-0 font-semibold"
@@ -136,7 +136,7 @@ export function RedraftRow({
             <span
               key={col.key}
               className={[
-                "tnum w-14 justify-end px-1 text-right text-sm",
+                "tnum w-16 justify-end px-1 text-right text-base",
                 col.cellClass ?? "inline-flex",
                 v === null ? "text-ink-faint/60" : heatClass(heat(col.key, v)),
               ].join(" ")}
@@ -148,7 +148,7 @@ export function RedraftRow({
       </div>
 
       {/* row actions */}
-      <div className="w-8 pr-1 text-right">
+      <div className="w-9 pr-1.5 text-right">
         <RowMenu
           name={player.name}
           slot={slot}

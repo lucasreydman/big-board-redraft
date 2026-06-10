@@ -40,7 +40,7 @@ import { createClient } from "@/lib/supabase/client";
 import { sortPlayerIds, type SortDir } from "@/lib/sort";
 import { buildHeat } from "@/lib/heat";
 import { teamColor } from "@/lib/teamColors";
-import { DRAFT_ORDER } from "@/lib/draftOrder";
+import { DRAFT_ORDER, type OriginalPick } from "@/lib/draftOrder";
 import { REDRAFT_STAT_COLUMNS, UDFA_PICK, type StatKey } from "@/lib/constants";
 import { pickDelta } from "@/lib/format";
 import { exportCsv, exportPng } from "@/lib/export";
@@ -85,10 +85,9 @@ export function RedraftTable({
     return [...kept, ...added];
   });
 
-  // The franchise that owned each first-round slot on draft night — static,
-  // from the generated draft-order map (independent of which players survive
-  // the trim).
-  const slotTeam = (slot: number): string | null =>
+  // Draft night at each slot — owning franchise + who they actually took —
+  // from the generated map (independent of which players survive the trim).
+  const slotInfo = (slot: number): OriginalPick | null =>
     DRAFT_ORDER[year]?.[slot] ?? null;
 
   const [sortKey, setSortKey] = useState<StatKey | null>(null);
@@ -241,6 +240,7 @@ export function RedraftTable({
     const headers = [
       "Slot",
       "SlotTeam",
+      "OriginalPick",
       "Player",
       "ActualPick",
       "Delta",
@@ -254,7 +254,8 @@ export function RedraftTable({
       const udfa = p.overallPick >= UDFA_PICK;
       return [
         slot,
-        slotTeam(slot) ?? "",
+        slotInfo(slot)?.team ?? "",
+        slotInfo(slot)?.player ?? "",
         p.name,
         udfa ? "UDFA" : p.overallPick,
         udfa ? "" : pickDelta(p.overallPick, slot),
@@ -360,24 +361,24 @@ export function RedraftTable({
           className="border-border bg-surface overflow-auto rounded-xl border"
           style={{ maxHeight: "calc(100vh - 230px)", minHeight: 360 }}
         >
-          <div className="min-w-[860px]">
+          <div className="min-w-[1080px]">
             {/* header strip */}
             <div className="bg-surface-2 sticky top-0 z-20 flex shadow-[inset_0_-1px_0_0_var(--color-border)]">
-              <div className="bg-surface-2 sticky left-0 z-10 flex w-[88px] shrink-0 items-center justify-end pr-3">
+              <div className="bg-surface-2 border-border/70 sticky left-0 z-10 flex w-[252px] shrink-0 items-center border-r pl-4">
                 <span className="text-ink-faint font-mono text-[11px] uppercase">
-                  Pick
+                  Pick · Draft night
                 </span>
               </div>
               <div className="flex flex-1 items-center py-2">
-                <span className="w-7" />
-                <span className="text-ink-faint flex-1 pl-[58px] font-mono text-[11px] uppercase">
-                  Player
+                <span className="w-8" />
+                <span className="text-ink-faint flex-1 pl-[86px] font-mono text-[11px] uppercase">
+                  Your redraft
                 </span>
                 <span className="flex items-center">
                   {REDRAFT_STAT_COLUMNS.map((col) => (
                     <span
                       key={col.key}
-                      className={`w-14 justify-end px-1 text-right ${col.cellClass ?? "inline-flex"}`}
+                      className={`w-16 justify-end px-1 text-right ${col.cellClass ?? "inline-flex"}`}
                     >
                       <button
                         onClick={() => handleSort(col.key)}
@@ -400,31 +401,54 @@ export function RedraftTable({
                     </span>
                   ))}
                 </span>
-                <span className="w-8" />
+                <span className="w-9" />
               </div>
             </div>
 
             {/* body */}
             <div className="flex">
-              {/* static rail — never part of the drag */}
-              <div className="bg-surface sticky left-0 z-10 w-[88px] shrink-0">
+              {/* static draft-night rail — never part of the drag */}
+              <div className="bg-surface border-border/70 sticky left-0 z-10 w-[252px] shrink-0 border-r">
                 {visibleIds.map((id) => {
                   const slot = slotOf.get(id) ?? 0;
-                  const team = slotTeam(slot);
+                  const info = slotInfo(slot);
                   return (
                     <div
                       key={`rail-${id}`}
-                      className="border-border/70 flex h-14 items-center justify-end gap-2 border-b pr-3"
+                      className="border-border/70 flex h-20 items-center gap-3 border-b pl-3 pr-2"
                     >
                       <span
                         className={[
-                          "display text-xl font-bold leading-none",
+                          "display w-9 shrink-0 text-right text-3xl font-bold leading-none",
                           slot <= 14 ? "text-accent" : "text-ink-muted",
                         ].join(" ")}
                       >
                         {slot}
                       </span>
-                      <TeamLogo team={team} size={26} />
+                      <TeamLogo team={info?.team} size={42} />
+                      {info ? (
+                        <div className="flex min-w-0 items-center gap-2">
+                          <Headshot
+                            src={
+                              info.personId
+                                ? `https://cdn.nba.com/headshots/nba/latest/1040x760/${info.personId}.png`
+                                : null
+                            }
+                            alt={info.player}
+                            size={40}
+                          />
+                          <div className="min-w-0">
+                            <div className="text-ink-muted truncate text-[12px] font-semibold leading-tight">
+                              {info.player}
+                            </div>
+                            <div className="text-ink-faint font-mono text-[9px] uppercase tracking-wide">
+                              Actual pick
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="text-ink-faint text-[11px]">—</span>
+                      )}
                     </div>
                   );
                 })}
@@ -469,10 +493,10 @@ export function RedraftTable({
               <Headshot
                 src={activePlayer.headshotUrl}
                 alt={activePlayer.name}
-                size={40}
+                size={52}
                 accent={teamColor(activePlayer.team)}
               />
-              <span className="display text-ink text-lg font-bold">
+              <span className="display text-ink text-xl font-bold">
                 {activePlayer.name}
               </span>
             </div>

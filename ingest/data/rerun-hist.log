@@ -1,0 +1,108 @@
+
+=== 2016 draft class ===
+  [nba_api] 60 picks
+  [bbref] 60 rows parsed
+  [supabase] upserted 60 players
+  [nba_api] filling SPG/BPG/TS% (throttled)…
+    [nba_api] career stats failed for 1627825: 'resultSet'
+    [nba_api] career stats failed for 1627837: 'resultSet'
+    [nba_api] career stats failed for 1627833: 'resultSet'
+    [nba_api] career stats failed for 1627791: 'resultSet'
+    [nba_api] career stats failed for 1627822: 'resultSet'
+    [nba_api] career stats failed for 1627845: 'resultSet'
+    [nba_api] career stats failed for 1627766: 'resultSet'
+  [supabase] upserted 60 career_stats rows
+
+=== 2017 draft class ===
+  [nba_api] 60 picks
+  [bbref] 60 rows parsed
+  [supabase] upserted 60 players
+  [nba_api] filling SPG/BPG/TS% (throttled)…
+    [nba_api] career stats failed for 1628406: 'resultSet'
+    [nba_api] career stats failed for 1628445: 'resultSet'
+    [nba_api] career stats failed for 1628446: 'resultSet'
+  [supabase] upserted 60 career_stats rows
+
+=== 2018 draft class ===
+  [nba_api] 60 picks
+  [bbref] 60 rows parsed
+  [supabase] upserted 60 players
+  [nba_api] filling SPG/BPG/TS% (throttled)…
+    [nba_api] career stats failed for 1628992: 'resultSet'
+    [nba_api] career stats failed for 1629068: 'resultSet'
+    [nba_api] career stats failed for 1628974: 'resultSet'
+  [supabase] upserted 60 career_stats rows
+
+=== 2019 draft class ===
+  [nba_api] 60 picks
+  [bbref] 60 rows parsed
+  [supabase] upserted 60 players
+  [nba_api] filling SPG/BPG/TS% (throttled)…
+    [nba_api] career stats failed for 1629713: 'resultSet'
+    [nba_api] career stats failed for 1629714: 'resultSet'
+    [nba_api] career stats failed for 1628986: 'resultSet'
+    [nba_api] career stats failed for 1629079: 'resultSet'
+  [supabase] upserted 60 career_stats rows
+
+=== 2020 draft class ===
+  [nba_api] 60 picks
+  [bbref] 60 rows parsed
+  [supabase] upserted 60 players
+  [nba_api] filling SPG/BPG/TS% (throttled)…
+    [nba_api] career stats failed for 1630236: 'resultSet'
+    [nba_api] career stats failed for 1630251: 'resultSet'
+    [nba_api] career stats failed for 1630223: 'resultSet'
+  [supabase] upserted 60 career_stats rows
+
+=== 2021 draft class ===
+  [nba_api] 60 picks
+  [bbref] 60 rows parsed
+  [supabase] upserted 60 players
+  [nba_api] filling SPG/BPG/TS% (throttled)…
+    [nba_api] career stats failed for 1630599: 'resultSet'
+    [nba_api] career stats failed for 1630584: 'resultSet'
+    [nba_api] career stats failed for 1630681: 'resultSet'
+    [nba_api] career stats failed for 1630196: 'resultSet'
+    [nba_api] career stats failed for 1630638: 'resultSet'
+    [nba_api] career stats failed for 1630686: 'resultSet'
+  [supabase] upserted 60 career_stats rows
+
+=== 2022 draft class ===
+  [nba_api] 58 picks
+  [bbref] 58 rows parsed
+  [supabase] upserted 58 players
+  [nba_api] filling SPG/BPG/TS% (throttled)…
+    [nba_api] career stats failed for 1630629: 'resultSet'
+    [nba_api] career stats failed for 1631215: 'resultSet'
+    [nba_api] career stats failed for 1631130: 'resultSet'
+    [nba_api] career stats failed for 1631164: 'resultSet'
+    [nba_api] career stats failed for 1631161: 'resultSet'
+    [nba_api] career stats failed for 1630656: 'resultSet'
+  [supabase] upserted 58 career_stats rows
+
+=== 2023 draft class ===
+  [nba_api] 58 picks
+  [bbref] 58 rows parsed
+  [supabase] upserted 58 players
+  [nba_api] filling SPG/BPG/TS% (throttled)…
+    [nba_api] career stats failed for 1641762: 'resultSet'
+    [nba_api] career stats failed for 1641844: 'resultSet'
+  [supabase] upserted 58 career_stats rows
+
+=== 2024 draft class ===
+  [nba_api] 58 picks
+  [bbref] 60 rows parsed
+  [supabase] upserted 58 players
+  [nba_api] filling SPG/BPG/TS% (throttled)…
+    [nba_api] career stats failed for 1642361: 'resultSet'
+    [nba_api] career stats failed for 1642351: 'resultSet'
+  [supabase] upserted 58 career_stats rows
+
+=== 2025 draft class ===
+  [nba_api] 59 picks
+  [bbref] 60 rows parsed
+  [supabase] upserted 59 players
+  [nba_api] filling SPG/BPG/TS% (throttled)…
+  [supabase] upserted 59 career_stats rows
+
+Done. Run download_headshots.py to mirror headshots to storage.
