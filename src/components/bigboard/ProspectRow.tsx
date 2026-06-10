@@ -4,6 +4,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, ListPlus, StickyNote, X } from "lucide-react";
 import { Headshot } from "@/components/Headshot";
+import { TeamLogo } from "@/components/redraft/TeamLogo";
 import { positionColor } from "@/lib/teamColors";
 import {
   PROSPECT_STAT_COLUMNS,
@@ -16,6 +17,7 @@ import type { Prospect } from "@/lib/types";
 export function ProspectRow({
   prospect,
   rank,
+  slotTeam,
   note,
   notesOpen,
   draggable,
@@ -27,6 +29,8 @@ export function ProspectRow({
 }: {
   prospect: Prospect;
   rank: number;
+  /** Franchise owning this draft slot — shows its logo beside the rank. */
+  slotTeam: string | null;
   note: string;
   notesOpen: boolean;
   draggable: boolean;
@@ -89,6 +93,10 @@ export function ProspectRow({
           ].join(" ")}
         >
           {rank}
+        </span>
+
+        <span className="flex w-11 shrink-0 items-center justify-center">
+          <TeamLogo team={slotTeam} size={40} />
         </span>
 
         <div className="pl-2">

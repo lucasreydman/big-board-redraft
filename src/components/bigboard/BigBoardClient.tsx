@@ -30,12 +30,13 @@ import {
   X,
 } from "lucide-react";
 import { ProspectRow } from "./ProspectRow";
-import { TierDivider } from "./TierDivider";
+import { TierDivider, RoundDivider } from "./TierDivider";
 import { SaveIndicator } from "@/components/SaveIndicator";
 import { Headshot } from "@/components/Headshot";
 import { useAutoSave } from "@/hooks/useAutoSave";
 import { createClient } from "@/lib/supabase/client";
 import { sortProspectIds, type SortDir } from "@/lib/sort";
+import { pickOwner2026 } from "@/lib/pickOwners2026";
 import { buildProspectHeat } from "@/lib/heat";
 import { positionColor } from "@/lib/teamColors";
 import {
@@ -384,6 +385,10 @@ export function BigBoardClient({
     const p = byId.get(id);
     if (!p) return;
     const fullIdx = order.indexOf(id);
+    // Fixed round break — structural, not a user tier, so it never moves.
+    if (!filterActive && displayIdx === 30) {
+      rows.push(<RoundDivider key="round-2" label="Round 2" />);
+    }
     if (!filterActive) {
       tiers
         .filter((t) => t.position === displayIdx)
@@ -403,6 +408,7 @@ export function BigBoardClient({
         key={id}
         prospect={p}
         rank={fullIdx + 1}
+        slotTeam={pickOwner2026(fullIdx + 1)}
         note={notes[id] ?? ""}
         notesOpen={openNotes === id}
         draggable={!filterActive}
@@ -528,6 +534,9 @@ export function BigBoardClient({
         <span className="w-8" />
         <span className="w-10 text-right font-mono text-[11px] uppercase">
           Rank
+        </span>
+        <span className="w-11 text-center font-mono text-[11px] uppercase">
+          Pick
         </span>
         <span className="w-[72px]" />
         <span className="flex-1 font-mono text-[11px] uppercase">Prospect</span>

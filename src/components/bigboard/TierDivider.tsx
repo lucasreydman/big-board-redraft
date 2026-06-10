@@ -40,3 +40,24 @@ export function TierDivider({
     </div>
   );
 }
+
+// A fixed structural divider (e.g. the round break). Unlike a tier it isn't
+// stored on the board, can't be edited or removed, and never moves.
+export function RoundDivider({ label }: { label: string }) {
+  return (
+    <div
+      className="flex items-center gap-3 px-4 py-2"
+      style={{
+        background:
+          "linear-gradient(90deg, rgba(93,102,117,.20) 0%, rgba(93,102,117,.05) 60%, transparent 100%)",
+        boxShadow:
+          "inset 0 1px 0 0 rgba(93,102,117,.5), inset 0 -1px 0 0 rgba(93,102,117,.5)",
+      }}
+    >
+      <span className="bg-ink-faint h-5 w-1.5 shrink-0 rounded-full" />
+      <span className="display text-ink-muted text-lg font-bold uppercase tracking-wide">
+        {label}
+      </span>
+    </div>
+  );
+}
