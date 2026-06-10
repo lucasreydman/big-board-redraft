@@ -531,14 +531,14 @@ export function BigBoardClient({
 
       {/* column header strip */}
       <div className="text-ink-faint flex items-center gap-2 px-2">
-        <span className="w-8" />
-        <span className="w-10 text-right font-mono text-[11px] uppercase">
+        <span className="w-11 text-right font-mono text-[11px] uppercase">
           Rank
         </span>
-        <span className="w-11 text-center font-mono text-[11px] uppercase">
+        <span className="w-20 text-center font-mono text-[11px] uppercase">
           Pick
         </span>
-        <span className="w-[72px]" />
+        <span className="w-8" />
+        <span className="w-[76px]" />
         <span className="flex-1 font-mono text-[11px] uppercase">Prospect</span>
         <div className="flex items-center">
           {PROSPECT_STAT_COLUMNS.map((col) => (
@@ -601,10 +601,10 @@ export function BigBoardClient({
               <Headshot
                 src={activeProspect.headshotUrl}
                 alt={activeProspect.name}
-                size={44}
+                size={52}
                 accent={positionColor(activeProspect.position)}
               />
-              <span className="display text-ink text-lg font-bold">
+              <span className="display text-ink text-xl font-bold">
                 {activeProspect.name}
               </span>
             </div>

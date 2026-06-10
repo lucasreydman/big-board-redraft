@@ -65,7 +65,7 @@ export function ProspectRow({
       style={{
         transform: CSS.Transform.toString(transform),
         transition,
-        boxShadow: `inset 3px 0 0 0 ${accent}`,
+        boxShadow: `inset 4px 0 0 0 ${accent}`,
       }}
       className={[
         "border-border/70 group border-b",
@@ -74,7 +74,20 @@ export function ProspectRow({
           : "hover:bg-surface-2/70 transition-colors duration-150",
       ].join(" ")}
     >
-      <div className="flex h-20 items-center gap-2 px-2">
+      <div className="flex h-[88px] items-center gap-2 px-2">
+        <span
+          className={[
+            "display w-11 shrink-0 text-right text-3xl font-bold leading-none",
+            rank <= 14 ? "text-accent" : "text-ink-muted",
+          ].join(" ")}
+        >
+          {rank}
+        </span>
+
+        <span className="flex w-20 shrink-0 items-center justify-center">
+          <TeamLogo team={slotTeam} size={80} />
+        </span>
+
         <button
           ref={setActivatorNodeRef}
           {...attributes}
@@ -86,29 +99,16 @@ export function ProspectRow({
           <GripVertical className="h-5 w-5" />
         </button>
 
-        <span
-          className={[
-            "display w-11 shrink-0 text-right text-3xl font-bold leading-none",
-            rank <= 14 ? "text-accent" : "text-ink-muted",
-          ].join(" ")}
-        >
-          {rank}
-        </span>
-
-        <span className="flex w-11 shrink-0 items-center justify-center">
-          <TeamLogo team={slotTeam} size={40} />
-        </span>
-
-        <div className="pl-2">
+        <div className="pl-1">
           <Headshot
             src={prospect.headshotUrl}
             alt={prospect.name}
-            size={64}
+            size={68}
             accent={accent}
           />
         </div>
 
-        <div className="min-w-[220px] flex-1 pl-2">
+        <div className="min-w-[220px] flex-1 pl-3.5 pr-2">
           <div className="flex items-center gap-2.5">
             <span className="display text-ink truncate text-2xl font-bold leading-tight">
               {prospect.name}
