@@ -1,19 +1,21 @@
 import { NavTabs } from "@/components/NavTabs";
 import { BigBoardClient } from "@/components/bigboard/BigBoardClient";
 import { getBigBoard, getCurrentUserEmail, getProspects } from "@/lib/data";
+import { isOwner } from "@/lib/agg/owner";
 
 export const dynamic = "force-dynamic";
 
 export default async function BigBoardPage() {
-  const [prospects, board, email] = await Promise.all([
+  const [prospects, board, email, owner] = await Promise.all([
     getProspects(),
     getBigBoard(),
     getCurrentUserEmail(),
+    isOwner(),
   ]);
 
   return (
     <>
-      <NavTabs active="board" email={email} />
+      <NavTabs active="board" email={email} isOwner={owner} />
       <main className="mx-auto max-w-[1600px] px-5 py-6">
         {prospects.length === 0 ? (
           <EmptyState />

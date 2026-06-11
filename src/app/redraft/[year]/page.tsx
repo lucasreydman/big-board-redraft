@@ -7,6 +7,7 @@ import {
   getPlayersByYear,
   getRedraftOrder,
 } from "@/lib/data";
+import { isOwner } from "@/lib/agg/owner";
 
 // Auth-gated and cookie-dependent, so always rendered per request.
 export const dynamic = "force-dynamic";
@@ -22,10 +23,11 @@ export default async function RedraftYearPage({
     notFound();
   }
 
-  const [players, saved, email] = await Promise.all([
+  const [players, saved, email, owner] = await Promise.all([
     getPlayersByYear(year),
     getRedraftOrder(year),
     getCurrentUserEmail(),
+    isOwner(),
   ]);
 
   // Start from the saved order if present; append any players missing from
@@ -51,7 +53,7 @@ export default async function RedraftYearPage({
 
   return (
     <>
-      <NavTabs active={year} email={email} />
+      <NavTabs active={year} email={email} isOwner={owner} />
       <main className="mx-auto max-w-[1600px] px-5 py-6">
         {players.length === 0 ? (
           <EmptyState year={year} />

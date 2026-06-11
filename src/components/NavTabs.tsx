@@ -7,10 +7,13 @@ import { REDRAFT_YEARS, PROSPECT_YEAR } from "@/lib/constants";
 export function NavTabs({
   active,
   email,
+  isOwner = false,
 }: {
-  // Either a redraft year, or "board" for the 2026 big board.
-  active: number | "board";
+  // Either a redraft year, "board" for the 2026 big board, or "news".
+  active: number | "board" | "news";
   email: string | null;
+  // Owner-only News tab (TMN aggregator feed + controls).
+  isOwner?: boolean;
 }) {
   return (
     <header className="border-border bg-base/90 sticky top-0 z-30 border-b backdrop-blur">
@@ -58,6 +61,12 @@ export function NavTabs({
             active={active === "board"}
             accent
           />
+          {isOwner && (
+            <>
+              <span className="bg-border mx-2 mb-3 h-5 w-px shrink-0" />
+              <Tab href="/news" label="News" active={active === "news"} accent />
+            </>
+          )}
         </nav>
       </div>
     </header>
