@@ -24,7 +24,6 @@ import {
   Check,
   ChevronDown,
   ChevronUp,
-  Download,
   ImageDown,
   PanelLeftClose,
   PanelLeftOpen,
@@ -48,12 +47,9 @@ import { DRAFT_ORDER, type OriginalPick } from "@/lib/draftOrder";
 import {
   CUTS_ENABLED,
   REDRAFT_STAT_COLUMNS,
-  UDFA_PICK,
-  UDFA_VALUE_PICK,
   type StatKey,
 } from "@/lib/constants";
-import { pickDelta } from "@/lib/format";
-import { exportCsv, exportPng } from "@/lib/export";
+import { exportPng } from "@/lib/export";
 import type { Player } from "@/lib/types";
 
 export function RedraftTable({
@@ -297,43 +293,17 @@ export function RedraftTable({
     commit(actualOrder, "Reset to actual draft order", []);
   }
 
-  function handleCsv() {
-    const headers = [
-      "Slot",
-      "SlotTeam",
-      "OriginalPick",
-      "Player",
-      "ActualPick",
-      "Delta",
-      "College",
-      "DraftedBy",
-      ...REDRAFT_STAT_COLUMNS.map((c) => c.label),
-    ];
-    const rows = displayIds.map((id, i) => {
-      const p = byId.get(id)!;
-      const slot = i + 1;
-      const udfa = p.overallPick >= UDFA_PICK;
-      return [
-        slot,
-        slotInfo(slot)?.team ?? "",
-        slotInfo(slot)?.player ?? "",
-        p.name,
-        udfa ? "UDFA" : p.overallPick,
-        pickDelta(udfa ? UDFA_VALUE_PICK : p.overallPick, slot),
-        p.college ?? "",
-        p.team ?? "",
-        ...REDRAFT_STAT_COLUMNS.map((c) => {
-          const v = p.stats[c.key as keyof Player["stats"]] as number | null;
-          return v ?? "";
-        }),
-      ];
-    });
-    exportCsv(`redraft-${year}.csv`, headers, rows);
-  }
-
   async function handlePng() {
-    if (tableRef.current) {
-      await exportPng(tableRef.current, `redraft-${year}.png`);
+    if (!tableRef.current) return;
+    const id = toast.loading("Building image…");
+    try {
+      await exportPng(tableRef.current, `redraft-${year}.png`, {
+        title: `${year} Redraft`,
+        subtitle: "Your board vs. the actual draft",
+      });
+      toast.success("Image ready", { id });
+    } catch {
+      toast.error("Couldn’t build the image — try again.", { id });
     }
   }
 
@@ -360,9 +330,6 @@ export function RedraftTable({
           )}
           <ToolButton onClick={resetToActual} icon={<RotateCcw className="h-3.5 w-3.5" />}>
             Reset
-          </ToolButton>
-          <ToolButton onClick={handleCsv} icon={<Download className="h-3.5 w-3.5" />}>
-            CSV
           </ToolButton>
           <ToolButton onClick={handlePng} icon={<ImageDown className="h-3.5 w-3.5" />}>
             PNG
@@ -426,11 +393,13 @@ export function RedraftTable({
         onDragCancel={handleDragCancel}
       >
         <div
-          ref={tableRef}
           className="border-border bg-surface overflow-auto rounded-xl border"
           style={{ maxHeight: "calc(100vh - 230px)", minHeight: 360 }}
         >
-          <div className={railOpen ? "min-w-[1190px]" : "min-w-[1000px]"}>
+          <div
+            ref={tableRef}
+            className={railOpen ? "min-w-[1190px]" : "min-w-[1000px]"}
+          >
             {/* header strip */}
             <div className="bg-surface-2 sticky top-0 z-20 flex shadow-[inset_0_-1px_0_0_var(--color-border)]">
               <div

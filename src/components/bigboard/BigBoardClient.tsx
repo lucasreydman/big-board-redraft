@@ -20,15 +20,7 @@ import {
 } from "@dnd-kit/sortable";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { toast } from "sonner";
-import {
-  Check,
-  Download,
-  ImageDown,
-  ListPlus,
-  Plus,
-  Search,
-  X,
-} from "lucide-react";
+import { Check, ImageDown, ListPlus, Plus, Search, X } from "lucide-react";
 import { ProspectRow } from "./ProspectRow";
 import { TierDivider, RoundDivider } from "./TierDivider";
 import { SaveIndicator } from "@/components/SaveIndicator";
@@ -44,7 +36,7 @@ import {
   POSITIONS,
   type ProspectStatKey,
 } from "@/lib/constants";
-import { exportCsv, exportPng } from "@/lib/export";
+import { exportPng } from "@/lib/export";
 import type { BigBoard, Prospect, Tier } from "@/lib/types";
 
 export function BigBoardClient({
@@ -322,61 +314,19 @@ export function BigBoardClient({
     trigger();
   }
 
-  // ---- exports ----
-  function tierLabelForIndex(i: number): string {
-    let label = "";
-    for (const t of tiers) if (t.position <= i) label = t.label;
-    return label;
-  }
-
-  function handleCsv() {
-    const headers = [
-      "Rank",
-      "Tier",
-      "Player",
-      "School",
-      "Pos",
-      "Class",
-      "Height",
-      "Weight",
-      "Age",
-      "PPG",
-      "RPG",
-      "APG",
-      "FG%",
-      "3P%",
-      "FT%",
-      "ProjectedRange",
-      "Notes",
-    ];
-    const rows = order.map((id, i) => {
-      const p = byId.get(id)!;
-      return [
-        i + 1,
-        tierLabelForIndex(i),
-        p.name,
-        p.school ?? "",
-        p.position ?? "",
-        p.classYear ?? "",
-        p.height ?? "",
-        p.weight ?? "",
-        p.age ?? "",
-        p.ppg ?? "",
-        p.rpg ?? "",
-        p.apg ?? "",
-        p.fgPct ?? "",
-        p.fg3Pct ?? "",
-        p.ftPct ?? "",
-        p.projectedRange ?? "",
-        notes[id] ?? "",
-      ];
-    });
-    exportCsv("big-board-2026.csv", headers, rows);
-  }
-
+  // ---- export ----
   async function handlePng() {
-    if (boardRef.current)
-      await exportPng(boardRef.current, "big-board-2026.png");
+    if (!boardRef.current) return;
+    const id = toast.loading("Building image…");
+    try {
+      await exportPng(boardRef.current, "big-board-2026.png", {
+        title: name || "Big Board",
+        subtitle: "2026 Big Board",
+      });
+      toast.success("Image ready", { id });
+    } catch {
+      toast.error("Couldn’t build the image — try again.", { id });
+    }
   }
 
   // ---- render the interleaved tiers + prospects ----
@@ -458,12 +408,6 @@ export function BigBoardClient({
             Tier
           </ToolButton>
           <ToolButton
-            onClick={handleCsv}
-            icon={<Download className="h-3.5 w-3.5" />}
-          >
-            CSV
-          </ToolButton>
-          <ToolButton
             onClick={handlePng}
             icon={<ImageDown className="h-3.5 w-3.5" />}
           >
@@ -539,11 +483,10 @@ export function BigBoardClient({
         onDragCancel={handleDragCancel}
       >
         <div
-          ref={boardRef}
           className="border-border bg-surface overflow-auto rounded-xl border"
           style={{ maxHeight: "calc(100vh - 230px)", minHeight: 360 }}
         >
-          <div className="min-w-[1000px]">
+          <div ref={boardRef} className="min-w-[1000px]">
             {/* header strip */}
             <div className="bg-surface-2 text-ink-faint sticky top-0 z-20 flex items-center gap-2 px-2 py-2 shadow-[inset_0_-1px_0_0_var(--color-border)]">
               <span className="w-11 text-right font-mono text-[11px] uppercase">
